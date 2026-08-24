@@ -1,0 +1,24 @@
+{
+    "data": [
+        {
+            "item_name": "Sauce Labs Backpack",
+            "qty": 3
+        },
+        {
+            "item_name": "Sauce Labs Backpack (orange)",
+            "qty": 10
+        },
+        {
+            "item_name": "Sauce Labs Backpack (red)",
+            "qty": 5
+        },
+        {
+            "item_name": "Sauce Labs Backpack (violet)",
+            "qty": 6
+        },
+        {
+            "item_name": "Sauce Labs Backpack (yellow)",
+            "qty": 4
+        }
+    ]
+}

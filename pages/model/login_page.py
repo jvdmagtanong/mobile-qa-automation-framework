@@ -17,11 +17,11 @@ class LoginPage(BasePage):
     def is_password_error_message_displayed(self):
         return self.is_element_displayed(LoginLocator.PASSWORD_ERROR_MESSAGE)
 
-    def is_password_error_message_equal_to(self, expected_message):
+    def verify_password_error_message_is_equal_to(self, expected_message):
         try:
-            return self.get_element_text(LoginLocator.PASSWORD_ERROR_MESSAGE) == expected_message
+            assert self.get_element_text(LoginLocator.PASSWORD_ERROR_MESSAGE) == expected_message
         except TimeoutException:
-            return False
+            assert False
 
     def login(self, username, password):
         self.enter_username(username)
