@@ -62,7 +62,6 @@ def test_remove_items(driver, products):
         else:
             break
 
-    #TODO: Verify No items here and Go shopping button is displayed
     product_name = product_list[0]
     with allure.step(f"Tap Remove item button for the last product {product_name}"):
         cart_page.click_remove_item_button(product_name)
