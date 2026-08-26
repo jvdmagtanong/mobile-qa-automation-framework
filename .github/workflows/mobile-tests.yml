@@ -36,6 +36,7 @@ jobs:
           profile: pixel_5
           emulator-options: -no-window -no-snapshot -noaudio -no-boot-anim -gpu swiftshader_indirect
           disable-animations: true
+          emulator-boot-timeout: 900
           script: |
             echo "Android emulator information:"
             adb devices
@@ -53,11 +54,6 @@ jobs:
             adb shell getconf PAGESIZE
 
             PAGE_SIZE=$(adb shell getconf PAGESIZE | tr -d '\r')
-
-            if [ "$PAGE_SIZE" != "4096" ]; then
-              echo "ERROR: This emulator is using ${PAGE_SIZE}-byte pages."
-              echo "The application requires a 4 KB page-size emulator."
-              exit 1
-            fi
+            test "$PAGE_SIZE" = "4096"
 
             echo "4 KB page-size requirement verified."
