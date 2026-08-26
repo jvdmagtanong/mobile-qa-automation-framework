@@ -27,14 +27,37 @@ jobs:
           pip --version
           pytest --version
 
-      - name: Inspect Android SDK
-        run: |
-          echo "ANDROID_HOME=$ANDROID_HOME"
-          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+      - name: Start Android emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_5
+          emulator-options: -no-window -no-snapshot -noaudio -no-boot-anim -gpu swiftshader_indirect
+          disable-animations: true
+          script: |
+            echo "Android emulator information:"
+            adb devices
 
-          echo "Available Android platforms:"
-          sdkmanager --list | grep "platforms;android-" | head -30
+            echo "Android version:"
+            adb shell getprop ro.build.version.release
 
-          echo ""
-          echo "Available Android system images:"
-          sdkmanager --list | grep "system-images;android-" | head -50
+            echo "Android API level:"
+            adb shell getprop ro.build.version.sdk
+
+            echo "CPU architecture:"
+            adb shell getprop ro.product.cpu.abi
+
+            echo "Page size:"
+            adb shell getconf PAGESIZE
+
+            PAGE_SIZE=$(adb shell getconf PAGESIZE | tr -d '\r')
+
+            if [ "$PAGE_SIZE" != "4096" ]; then
+              echo "ERROR: This emulator is using ${PAGE_SIZE}-byte pages."
+              echo "The application requires a 4 KB page-size emulator."
+              exit 1
+            fi
+
+            echo "4 KB page-size requirement verified."
