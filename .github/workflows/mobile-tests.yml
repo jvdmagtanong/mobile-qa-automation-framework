@@ -92,11 +92,10 @@ jobs:
 
             echo "Waiting for Appium server..."
 
-            until curl -sf "http://127.0.0.1:4723/status" > /dev/null; do
-              sleep 1
-            done
+            sleep 5
+
+            echo "Checking Appium server..."
+
+            curl -sf "http://127.0.0.1:4723/status"
 
             echo "Appium server is ready."
-
-            echo "Appium status:"
-            curl -s "http://127.0.0.1:4723/status"
