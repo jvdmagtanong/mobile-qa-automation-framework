@@ -3,6 +3,10 @@ name: Mobile Automation Tests
 on:
   workflow_dispatch:
 
+env:
+  APK_URL: https://github.com/saucelabs/my-demo-app-android/releases/download/2.2.0/mda-2.2.0-25.apk
+  APK_PATH: apps/mda-2.2.0-25.apk
+
 jobs:
   mobile-tests:
     runs-on: ubuntu-latest
@@ -26,6 +30,16 @@ jobs:
           python --version
           pip --version
           pytest --version
+
+      - name: Download application
+        run: |
+          mkdir -p apps
+          curl -L -o "$APK_PATH" "$APK_URL"
+
+      - name: Verify application
+        run: |
+          ls -lh "$APK_PATH"
+          file "$APK_PATH"
 
       - name: Start Android emulator
         uses: reactivecircus/android-emulator-runner@v2
