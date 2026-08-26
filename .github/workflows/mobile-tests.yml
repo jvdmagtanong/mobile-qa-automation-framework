@@ -41,6 +41,11 @@ jobs:
           ls -lh "$APK_PATH"
           file "$APK_PATH"
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
       - name: Start Android emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -66,3 +71,17 @@ jobs:
 
             echo "Page size:"
             adb shell getconf PAGESIZE
+
+            echo "Installing Appium..."
+
+            npm install -g appium@3
+
+            echo "Appium version:"
+            appium --version
+
+            echo "Installing UiAutomator2 driver..."
+
+            appium driver install uiautomator2
+
+            echo "Installed Appium drivers:"
+            appium driver list --installed
