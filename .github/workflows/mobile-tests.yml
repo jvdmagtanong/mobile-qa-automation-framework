@@ -99,3 +99,22 @@ jobs:
             curl -sf "http://127.0.0.1:4723/status"
 
             echo "Appium server is ready."
+
+            echo "Starting Appium server..."
+
+            appium --address 127.0.0.1 --port 4723 > /tmp/appium.log 2>&1 &
+
+            echo "Waiting for Appium server..."
+
+            sleep 5
+
+            echo "Checking Appium server..."
+
+            curl -sf "http://127.0.0.1:4723/status"
+
+            echo "Appium server is ready."
+
+            echo "Running mobile tests..."
+
+            pytest tests/mobile/test_login.py -v
+
