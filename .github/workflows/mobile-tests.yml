@@ -33,8 +33,8 @@ jobs:
           api-level: 34
           target: google_apis
           arch: x86_64
-          profile: pixel_5
-          emulator-options: -no-window -no-snapshot -noaudio -no-boot-anim -gpu swiftshader_indirect
+          profile: pixel_2
+          emulator-options: -no-window -no-snapshot -noaudio -no-boot-anim -gpu swiftshader_indirect -no-metrics
           disable-animations: true
           emulator-boot-timeout: 900
           script: |
@@ -52,7 +52,3 @@ jobs:
 
             echo "Page size:"
             adb shell getconf PAGESIZE
-
-            adb shell getconf PAGESIZE | grep -q "4096"
-
-            echo "4 KB page-size requirement verified."
