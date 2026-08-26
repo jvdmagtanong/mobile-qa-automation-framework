@@ -16,3 +16,8 @@ def get_required_env(name: str) -> str:
 
 USERNAME = get_required_env("USERNAME")
 PASSWORD = get_required_env("PASSWORD")
+APPIUM_HOST = os.getenv("APPIUM_HOST", "127.0.0.1")
+APPIUM_PORT = os.getenv("APPIUM_PORT", "4723")
+DEVICE_NAME = get_required_env("DEVICE_NAME")
+DEVICE_UDID = get_required_env("DEVICE_UDID")
+APK_PATH = get_required_env("APK_PATH")

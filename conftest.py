@@ -1,9 +1,8 @@
-import subprocess
-import pytest
-import allure
+import subprocess, pytest, allure
 from pathlib import Path
 from appium import webdriver
 from appium.options.android import UiAutomator2Options
+from utils.config import APPIUM_HOST, APPIUM_PORT, APK_PATH, DEVICE_NAME, DEVICE_UDID
 
 
 @pytest.fixture
@@ -21,14 +20,14 @@ def driver():
     )
     options = UiAutomator2Options()
     project_root = Path(__file__).parent
-    app_path = project_root / "apps" / "mda-2.2.0-25.apk"
+    app_path = project_root / APK_PATH
 
     options.load_capabilities(
         {
             "platformName": "Android",
             "appium:automationName": "UiAutomator2",
-            "appium:deviceName": "Pixel_10",
-            "appium:udid": "emulator-5554",
+            "appium:deviceName": DEVICE_NAME,
+            "appium:udid": DEVICE_UDID,
             "appium:app": str(app_path),
             "appium:appWaitActivity": "com.saucelabs.mydemoapp.android.view.activities.MainActivity",
             "appium:ensureWebviewsHavePages": True,
@@ -38,7 +37,7 @@ def driver():
         }
     )
 
-    driver = webdriver.Remote("http://127.0.0.1:4723", options=options)
+    driver = webdriver.Remote(f"http://{APPIUM_HOST}:{APPIUM_PORT}", options=options)
     yield driver
     driver.quit()
 
@@ -55,7 +54,8 @@ def pytest_runtest_makereport(item, call):
             screenshots_dir = Path("test-reports/screenshots")
             screenshots_dir.mkdir(parents=True, exist_ok=True)
 
-            screenshot_path = screenshots_dir / f"{item.name}.png"
+            safe_name = item.nodeid.replace("/", "_").replace("::", "_")
+            screenshot_path = screenshots_dir / f"{safe_name}.png"
 
             driver.save_screenshot(str(screenshot_path))
 
@@ -64,5 +64,3 @@ def pytest_runtest_makereport(item, call):
                 name=f"{item.name} - Failure Screenshot",
                 attachment_type=allure.attachment_type.PNG,
             )
-
-

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-APPIUM_HOST="127.0.0.1"
-APPIUM_PORT="4723"
+APPIUM_HOST="${APPIUM_HOST:-127.0.0.1}"
+APPIUM_PORT="${APPIUM_PORT:-4723}"
 
 echo "Checking if Appium server is already running..."
 
