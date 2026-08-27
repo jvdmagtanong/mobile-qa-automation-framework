@@ -38,6 +38,7 @@ def driver():
             "appium:nativeWebScreenshot": True,
             "appium:newCommandTimeout": 3600,
             "appium:connectHardwareKeyboard": True,
+            "appium:uiautomator2ServerInstallTimeout": 120000,
         }
     )
 
