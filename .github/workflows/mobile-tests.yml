@@ -56,11 +56,10 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: pixel_2
-          emulator-options: -no-window -no-snapshot -noaudio -no-boot-anim -gpu swiftshader_indirect -no-metrics
-          disable-animations: true
+          emulator-options: -no-window -no-snapshot -noaudio -no-boot-anim -gpu swiftshader_indirect -no-metrics -no-snapshot-load -no-snapshot-save
           emulator-boot-timeout: 900
           script: |
-            echo "Android emulator information:"
+            echo "===== Emulator health check ====="
             adb devices
 
             echo "Android version:"
@@ -72,14 +71,16 @@ jobs:
             echo "CPU architecture:"
             adb shell getprop ro.product.cpu.abi
 
-            echo "Page size:"
-            adb shell getconf PAGESIZE
+            echo "Boot completed:"
+            adb shell getprop sys.boot_completed
 
-            echo "Checking Android settings service..."
+            echo "Android settings service:"
             adb shell settings get global window_animation_scale
 
-            echo "Checking package manager..."
-            adb shell pm list packages | head
+            echo "Package manager:"
+            adb shell pm list packages | head -20
+
+            echo "===== Emulator health check passed ====="
 
             echo "Installing Appium..."
             npm install -g appium@3
