@@ -91,22 +91,8 @@ jobs:
             echo "Installing UiAutomator2 driver..."
             appium driver install uiautomator2
 
-            echo "===== Installing Appium Settings APK ====="
-
-            SETTINGS_APK=$(find "$HOME/.appium" -path "*io.appium.settings*" -name "*.apk" -type f | head -1)
-
-            echo "Settings APK:"
-            echo "$SETTINGS_APK"
-
-            if [ -z "$SETTINGS_APK" ]; then
-              echo "ERROR: Appium Settings APK was not found."
-              exit 1
-            fi
-
-            adb install -r "$SETTINGS_APK"
-
-            echo "Installed Appium Settings:"
-            adb shell pm list packages | grep io.appium.settings
+            echo "===== Finding Appium helper APKs ====="
+            find "$HOME/.appium" -type f -name "*.apk" -print
 
             echo "Installed Appium drivers:"
             appium driver list --installed
