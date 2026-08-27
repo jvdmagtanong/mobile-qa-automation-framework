@@ -12,6 +12,7 @@ env:
 jobs:
   mobile-tests:
     runs-on: ubuntu-latest
+    environment: mobile-test-automation
 
     steps:
       - name: Checkout repository
