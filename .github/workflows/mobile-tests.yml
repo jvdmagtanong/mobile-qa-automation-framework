@@ -119,5 +119,5 @@ jobs:
 
             echo "Running mobile tests..."
 
-            pytest tests/mobile/test_login.py -v
+            pytest tests/mobile/authentication/test_login_successful.py -v
 
