@@ -95,7 +95,7 @@ jobs:
             appium driver list --installed
 
             echo "Starting Appium server..."
-            appium --address 127.0.0.1 --port 4723 > /tmp/appium.log 2>&1 &
+            appium --address 127.0.0.1 --port 4723 --log-level debug > /tmp/appium.log 2>&1 &
 
             echo "Waiting for Appium server..."
             sleep 5
@@ -126,5 +126,8 @@ jobs:
 
             echo "===== Appium log ====="
             cat /tmp/appium.log
+
+            echo "===== Android logcat ====="
+            adb logcat -d -t 500
 
             exit $TEST_EXIT_CODE
