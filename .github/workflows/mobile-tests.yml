@@ -6,6 +6,8 @@ on:
 env:
   APK_URL: https://github.com/saucelabs/my-demo-app-android/releases/download/2.2.0/mda-2.2.0-25.apk
   APK_PATH: apps/mda-2.2.0-25.apk
+  USERNAME: ${{ secrets.USERNAME }}
+  PASSWORD: ${{ secrets.PASSWORD }}
 
 jobs:
   mobile-tests:
