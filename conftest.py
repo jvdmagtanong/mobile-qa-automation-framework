@@ -7,6 +7,8 @@ from utils.config import APPIUM_HOST, APPIUM_PORT, APK_PATH, DEVICE_NAME, DEVICE
 
 @pytest.fixture
 def driver():
+    project_root = Path(__file__).parent
+    app_path = project_root / APK_PATH
     package_name = "com.saucelabs.mydemoapp.android"
 
     package_check = subprocess.run(
@@ -20,20 +22,22 @@ def driver():
             ["adb", "shell", "pm", "clear", package_name],
             check=True,
         )
+    else:
+        subprocess.run(
+            ["adb", "install", "-r", str(app_path)],
+            check=True,
+        )
 
     options = UiAutomator2Options()
-
-    project_root = Path(__file__).parent
-    app_path = project_root / APK_PATH
-
     options.load_capabilities(
         {
             "platformName": "Android",
             "appium:automationName": "UiAutomator2",
             "appium:deviceName": DEVICE_NAME,
             "appium:udid": DEVICE_UDID,
-            "appium:app": str(app_path),
-            "appium:appWaitActivity": "com.saucelabs.mydemoapp.android.view.activities.MainActivity",
+            "appium:appPackage": package_name,
+            "appium:appActivity": f"{package_name}.view.activities.MainActivity",
+            "appium:appWaitActivity": f"{package_name}.view.activities.MainActivity",
             "appium:ensureWebviewsHavePages": True,
             "appium:nativeWebScreenshot": True,
             "appium:newCommandTimeout": 3600,
