@@ -110,24 +110,30 @@ jobs:
             echo "Checking installed package..."
             adb shell pm list packages | grep saucelabs
 
-            echo "===== Finding UiAutomator2 server APK ====="
+            echo "===== Inspecting UiAutomator2 installation ====="
 
             echo "Appium home:"
+            echo "$HOME/.appium"
+
+            echo "Installed drivers:"
             appium driver list --installed
 
-            echo "Searching for UiAutomator2 APK..."
-            find /home/runner/.appium -name "appium-uiautomator2-server*.apk" -type f -print
+            echo "===== All Appium APKs ====="
+            find "$HOME/.appium" -type f \( -name "*.apk" -o -name "*.apks" \) -print
 
-            echo "===== UiAutomator2 APK search complete ====="
+            echo "===== Appium Settings packages ====="
+            adb shell pm list packages | grep -E "io.appium|uiautomator" || true
 
-            echo "Running mobile tests..."
+            echo "===== UiAutomator2 processes ====="
+            adb shell ps -A | grep -E "appium|uiautomator" || true
+
+            echo "===== Running mobile tests ====="
             pytest tests/mobile/authentication/test_login_successful.py -v
             TEST_EXIT_CODE=$?
 
             echo "===== Appium log ====="
             cat /tmp/appium.log
 
-            echo "===== Android logcat ====="
-            adb logcat -d -t 500
+            echo "===== End diagnostics ====="
 
             exit $TEST_EXIT_CODE
