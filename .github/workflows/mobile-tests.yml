@@ -110,17 +110,15 @@ jobs:
             echo "Checking installed package..."
             adb shell pm list packages | grep saucelabs
 
-            echo "Testing UiAutomator2 server APK installation..."
-            UIAUTOMATOR2_APK="$HOME/.appium/node_modules/appium-uiautomator2-driver/node_modules/appium-uiautomator2-server/apks/appium-uiautomator2-server-v10.6.2.apk"
+            echo "===== Finding UiAutomator2 server APK ====="
 
-            echo "UiAutomator2 APK:"
-            ls -lh "$UIAUTOMATOR2_APK"
+            echo "Appium home:"
+            appium driver list --installed
 
-            echo "Installing UiAutomator2 server APK manually..."
-            adb install -r "$UIAUTOMATOR2_APK"
+            echo "Searching for UiAutomator2 APK..."
+            find /home/runner/.appium -name "appium-uiautomator2-server*.apk" -type f -print
 
-            echo "Checking UiAutomator2 package..."
-            adb shell pm list packages | grep appium
+            echo "===== UiAutomator2 APK search complete ====="
 
             echo "Running mobile tests..."
             pytest tests/mobile/authentication/test_login_successful.py -v
