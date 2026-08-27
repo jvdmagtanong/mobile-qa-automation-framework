@@ -7,18 +7,22 @@ from utils.config import APPIUM_HOST, APPIUM_PORT, APK_PATH, DEVICE_NAME, DEVICE
 
 @pytest.fixture
 def driver():
-    # Reset the app before every test
-    subprocess.run(
-        [
-            "adb",
-            "shell",
-            "pm",
-            "clear",
-            "com.saucelabs.mydemoapp.android",
-        ],
-        check=True,
+    package_name = "com.saucelabs.mydemoapp.android"
+
+    package_check = subprocess.run(
+        ["adb", "shell", "pm", "list", "packages", package_name],
+        capture_output=True,
+        text=True,
     )
+
+    if package_name in package_check.stdout:
+        subprocess.run(
+            ["adb", "shell", "pm", "clear", package_name],
+            check=True,
+        )
+
     options = UiAutomator2Options()
+
     project_root = Path(__file__).parent
     app_path = project_root / APK_PATH
 
@@ -37,8 +41,13 @@ def driver():
         }
     )
 
-    driver = webdriver.Remote(f"http://{APPIUM_HOST}:{APPIUM_PORT}", options=options)
+    driver = webdriver.Remote(
+        f"http://{APPIUM_HOST}:{APPIUM_PORT}",
+        options=options,
+    )
+
     yield driver
+
     driver.quit()
 
 
