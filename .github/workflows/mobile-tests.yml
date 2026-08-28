@@ -49,7 +49,7 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Start Android emulator
+            - name: Start Android emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 34
@@ -136,13 +136,22 @@ jobs:
             appium driver list --installed
 
             echo "===== Installing Appium Settings APK ====="
-            ls -lh "$HOME/.appium/node_modules/appium-uiautomator2-driver/node_modules/io.appium.settings/apks/settings_apk-debug.apk"
-            adb install -r --no-incremental "$HOME/.appium/node_modules/appium-uiautomator2-driver/node_modules/io.appium.settings/apks/settings_apk-debug.apk"
+
+            echo "Settings APK:"
+            ls -lh /home/runner/.appium/node_modules/appium-uiautomator2-driver/node_modules/io.appium.settings/apks/settings_apk-debug.apk
+
+            echo "Installing Settings APK:"
+            adb install -r --no-incremental \
+              /home/runner/.appium/node_modules/appium-uiautomator2-driver/node_modules/io.appium.settings/apks/settings_apk-debug.apk
 
             echo "Checking Appium Settings package:"
             adb shell pm list packages | grep io.appium.settings
 
+            echo "Checking Appium Settings APK path:"
+            adb shell pm path io.appium.settings
+
             echo "===== Starting Appium Settings manually ====="
+
             adb shell am force-stop io.appium.settings || true
             adb shell monkey -p io.appium.settings 1 || true
 
@@ -151,11 +160,11 @@ jobs:
             echo "===== Appium Settings process ====="
             adb shell pidof io.appium.settings || echo "Appium Settings is NOT running"
 
-            echo "===== Appium Settings package state ====="
-            adb shell dumpsys package io.appium.settings | grep -E "Package \[|versionName|enabled=" || true
+            echo "===== Appium Settings package information ====="
+            adb shell dumpsys package io.appium.settings | head -100
 
-            echo "===== Recent Settings errors ====="
-            adb logcat -d -t 500 | grep -i -E "io.appium.settings|AndroidRuntime|FATAL EXCEPTION" || true
+            echo "===== Recent Appium Settings errors ====="
+            adb logcat -d -t 500 | grep -i -E "io.appium.settings|AndroidRuntime|FATAL EXCEPTION|SecurityException" || true
 
             echo "===== Running mobile tests ====="
             pytest tests/mobile/authentication/test_login_successful.py -v
