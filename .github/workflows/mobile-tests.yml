@@ -121,14 +121,20 @@ jobs:
             echo "Installed drivers:"
             appium driver list --installed
 
-            echo "===== All Appium APKs ====="
-            find "$HOME/.appium" -type f \( -name "*.apk" -o -name "*.apks" \) -print
+            echo "Installing Appium Settings APK..."
+            SETTINGS_APK=$(find "$HOME/.appium" -path "*io.appium.settings*" -name "*.apk" -type f | head -1)
 
-            echo "===== Appium Settings packages ====="
-            adb shell pm list packages | grep -E "io.appium|uiautomator" || true
+            if [ -z "$SETTINGS_APK" ]; then
+              echo "ERROR: Appium Settings APK not found"
+              exit 1
+            fi
 
-            echo "===== UiAutomator2 processes ====="
-            adb shell ps -A | grep -E "appium|uiautomator" || true
+            echo "Settings APK: $SETTINGS_APK"
+
+            adb install -r "$SETTINGS_APK"
+
+            echo "Checking Appium Settings package..."
+            adb shell pm list packages | grep io.appium.settings
 
             echo "===== Running mobile tests ====="
             pytest tests/mobile/authentication/test_login_successful.py -v
@@ -140,3 +146,4 @@ jobs:
             echo "===== End diagnostics ====="
 
             exit $TEST_EXIT_CODE
+            
