@@ -87,40 +87,12 @@ jobs:
             echo "===== Verifying test APK ====="
             adb shell pm list packages | grep saucelabs
 
-            echo "===== Appium Settings diagnostic ====="
-
-            echo "Package:"
-            adb shell pm path io.appium.settings
-
-            echo "Package info:"
-            adb shell dumpsys package io.appium.settings | head -100
-
-            echo "Launcher activity:"
-            adb shell cmd package resolve-activity --brief io.appium.settings
-
-            echo "Starting Settings activity:"
-            adb shell am start-activity -n io.appium.settings/.Settings
-
-            echo "Activity start exit code:"
-            echo $?
-
-            sleep 5
-
-            echo "Settings process:"
-            adb shell pidof io.appium.settings || echo "NOT RUNNING"
-
-            echo "Recent Settings errors:"
-            adb logcat -d -t 1000 | grep -i -E "io.appium.settings|AndroidRuntime|FATAL EXCEPTION|SecurityException" || true
-
-            echo "===== End Appium Settings diagnostic ====="
+            adb wait-for-device
+            while [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" != "1" ]; do sleep 2; done
+            adb shell input keyevent 82
+            adb shell settings put global window_animation_scale 0.0
+            adb shell settings put global transition_animation_scale 0.0
+            adb shell settings put global animator_duration_scale 0.0
 
             echo "===== Running mobile test ====="
             pytest tests/mobile/authentication/test_login_successful.py -v
-
-            TEST_EXIT_CODE=$?
-
-            echo "===== Appium log ====="
-            cat /tmp/appium.log
-
-            exit $TEST_EXIT_CODE
-            

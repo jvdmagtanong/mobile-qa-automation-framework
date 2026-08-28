@@ -41,10 +41,13 @@ def driver():
             "appium:ensureWebviewsHavePages": True,
             "appium:nativeWebScreenshot": True,
             "appium:newCommandTimeout": 3600,
-            "appium:connectHardwareKeyboard": True,
-            "appium:uiautomator2ServerInstallTimeout": 300000,
+            "appium:connectHardwareKeyboard": True,"appium:autoGrantPermissions": True,
+            "appium:uiautomator2ServerInstallTimeout": 120000,
             "appium:uiautomator2ServerLaunchTimeout": 120000,
+            "appium:appWaitDuration": 60000,
             "appium:adbExecTimeout": 120000,
+            # Prevents settings app reset overhead between sessions
+            "appium:skipServerInstallation": False,
         }
     )
 
