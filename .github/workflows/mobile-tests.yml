@@ -59,44 +59,41 @@ jobs:
           emulator-options: -no-window -no-snapshot -noaudio -no-boot-anim -gpu swiftshader_indirect -no-metrics -no-snapshot-load -no-snapshot-save
           emulator-boot-timeout: 900
           script: |
-            echo "===== Emulator health check ====="
+            echo "===== Installing Appium ====="
+            npm install -g appium@3
 
-            echo "ADB devices:"
-            adb devices
+            echo "Appium version:"
+            appium --version
 
-            echo "Android version:"
-            adb shell getprop ro.build.version.release
+            echo "===== Installing UiAutomator2 driver ====="
+            appium driver install uiautomator2
 
-            echo "Android API level:"
-            adb shell getprop ro.build.version.sdk
+            echo "===== Installed Appium drivers ====="
+            appium driver list --installed
 
-            echo "CPU architecture:"
-            adb shell getprop ro.product.cpu.abi
+            echo "===== Starting Appium server ====="
+            appium --address 127.0.0.1 --port 4723 --log-level debug > /tmp/appium.log 2>&1 &
 
-            echo "Boot completed:"
-            adb shell getprop sys.boot_completed
+            echo "Waiting for Appium server..."
+            sleep 5
 
-            echo "===== Verifying Android system services ====="
+            echo "Checking Appium server..."
+            curl -sf "http://127.0.0.1:4723/status"
+            echo "Appium server is ready."
 
-            echo "Package service:"
-            adb shell service check package
+            echo "===== Installing test APK ====="
+            adb install -r --no-incremental "$APK_PATH"
 
-            echo "Activity service:"
-            adb shell service check activity
+            echo "===== Verifying test APK ====="
+            adb shell pm list packages | grep saucelabs
 
-            echo "Settings service:"
-            adb shell service check settings
+            echo "===== Running mobile test ====="
+            pytest tests/mobile/authentication/test_login_successful.py -v
 
-            echo "===== Verifying Package Manager ====="
+            TEST_EXIT_CODE=$?
 
-            adb shell pm path com.android.settings
+            echo "===== Appium log ====="
+            cat /tmp/appium.log
 
-            echo "===== Verifying Activity Manager ====="
-
-            adb shell am get-current-user
-
-            echo "===== Verifying Settings ====="
-
-            adb shell settings get global window_animation_scale
-
-            echo "===== Android system services are healthy ====="
+            exit $TEST_EXIT_CODE
+            
