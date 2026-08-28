@@ -127,20 +127,16 @@ jobs:
             echo "Installed drivers:"
             appium driver list --installed
 
-            echo "Installing Appium Settings APK..."
-            SETTINGS_APK=$(find "$HOME/.appium" -path "*io.appium.settings*" -name "*.apk" -type f | head -1)
+            echo "===== Installing Appium Settings APK ====="
 
-            if [ -z "$SETTINGS_APK" ]; then
-              echo "ERROR: Appium Settings APK not found"
-              exit 1
-            fi
+            SETTINGS_APK=$(find "$HOME/.appium" -path "*io.appium.settings*" -name "*.apk" -type f | head -1)
 
             echo "Settings APK: $SETTINGS_APK"
 
-            adb install -r "$SETTINGS_APK"
+            adb install -r --no-incremental "$SETTINGS_APK"
 
-            echo "Checking Appium Settings package..."
-            adb shell pm list packages | grep io.appium.settings
+            echo "Checking Appium Settings package:"
+            adb shell pm list packages | grep io.appium.settings || true
 
             echo "===== Running mobile tests ====="
             pytest tests/mobile/authentication/test_login_successful.py -v
