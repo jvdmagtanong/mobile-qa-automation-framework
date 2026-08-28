@@ -113,6 +113,14 @@ jobs:
 
             echo "Package Manager is responding."
 
+            echo "===== Disabling APK verification ====="
+            adb shell settings put global package_verifier_enable 0
+            adb shell settings put global verifier_verify_adb_installs 0
+
+            echo "Package verifier settings:"
+            adb shell settings get global package_verifier_enable
+            adb shell settings get global verifier_verify_adb_installs
+
             echo "===== Installing test APK manually ====="
             adb install -r --no-incremental "$APK_PATH"
 
