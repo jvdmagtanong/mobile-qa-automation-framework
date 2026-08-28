@@ -128,11 +128,8 @@ jobs:
             appium driver list --installed
 
             echo "===== Installing Appium Settings APK ====="
-            SETTINGS_APK="$HOME/.appium/node_modules/appium-uiautomator2-driver/node_modules/io.appium.settings/apks/settings_apk-debug.apk"
-
-            echo "Settings APK: $SETTINGS_APK"
-            ls -lh "$SETTINGS_APK"
-            adb install -r --no-incremental "$SETTINGS_APK"
+            ls -lh "$HOME/.appium/node_modules/appium-uiautomator2-driver/node_modules/io.appium.settings/apks/settings_apk-debug.apk"
+            adb install -r --no-incremental "$HOME/.appium/node_modules/appium-uiautomator2-driver/node_modules/io.appium.settings/apks/settings_apk-debug.apk"
 
             echo "Checking Appium Settings package:"
             adb shell pm list packages | grep io.appium.settings
