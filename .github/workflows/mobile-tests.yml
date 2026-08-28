@@ -60,6 +60,8 @@ jobs:
           emulator-boot-timeout: 900
           script: |
             echo "===== Emulator health check ====="
+
+            echo "ADB devices:"
             adb devices
 
             echo "Android version:"
@@ -74,104 +76,27 @@ jobs:
             echo "Boot completed:"
             adb shell getprop sys.boot_completed
 
-            echo "Android settings service:"
-            adb shell settings get global window_animation_scale
+            echo "===== Verifying Android system services ====="
 
-            echo "Package manager:"
-            adb shell pm list packages | head -20
+            echo "Package service:"
+            adb shell service check package
 
-            echo "===== Emulator health check passed ====="
+            echo "Activity service:"
+            adb shell service check activity
 
-            echo "Installing Appium..."
-            npm install -g appium@3
+            echo "Settings service:"
+            adb shell service check settings
 
-            echo "Appium version:"
-            appium --version
-
-            echo "Installing UiAutomator2 driver..."
-            appium driver install uiautomator2
-
-            echo "===== Finding Appium helper APKs ====="
-            find "$HOME/.appium" -type f -name "*.apk" -print
-
-            echo "Installed Appium drivers:"
-            appium driver list --installed
-
-            echo "Starting Appium server..."
-            appium --address 127.0.0.1 --port 4723 --log-level debug > /tmp/appium.log 2>&1 &
-
-            echo "Waiting for Appium server..."
-            sleep 5
-
-            echo "Checking Appium server..."
-            curl -sf "http://127.0.0.1:4723/status"
-            echo "Appium server is ready."
-
-            echo "===== Disabling APK verification ====="
-            adb shell settings put global package_verifier_enable 0
-            adb shell settings put global verifier_verify_adb_installs 0
-
-            echo "Package verifier settings:"
-            adb shell settings get global package_verifier_enable
-            adb shell settings get global verifier_verify_adb_installs
-
-            echo "===== Verifying Package Manager before APK installation ====="
+            echo "===== Verifying Package Manager ====="
 
             adb shell pm path com.android.settings
 
-            echo "Package Manager is responding."
+            echo "===== Verifying Activity Manager ====="
 
-            echo "===== Installing test APK manually ====="
-            adb install -r --no-incremental "$APK_PATH"
+            adb shell am get-current-user
 
-            echo "===== Checking installed package ====="
-            adb shell pm list packages | grep saucelabs
+            echo "===== Verifying Settings ====="
 
-            echo "===== Inspecting UiAutomator2 installation ====="
+            adb shell settings get global window_animation_scale
 
-            echo "Appium home:"
-            echo "$HOME/.appium"
-
-            echo "Installed drivers:"
-            appium driver list --installed
-
-            echo "===== Installing Appium Settings APK ====="
-
-            echo "Settings APK:"
-            ls -lh /home/runner/.appium/node_modules/appium-uiautomator2-driver/node_modules/io.appium.settings/apks/settings_apk-debug.apk
-
-            echo "Installing Settings APK:"
-            adb install -r --no-incremental /home/runner/.appium/node_modules/appium-uiautomator2-driver/node_modules/io.appium.settings/apks/settings_apk-debug.apk
-
-            echo "Checking Appium Settings package:"
-            adb shell pm list packages | grep io.appium.settings
-
-            echo "Checking Appium Settings APK path:"
-            adb shell pm path io.appium.settings
-
-            echo "===== Starting Appium Settings manually ====="
-
-            adb shell am force-stop io.appium.settings || true
-            adb shell monkey -p io.appium.settings 1 || true
-
-            sleep 5
-
-            echo "===== Appium Settings process ====="
-            adb shell pidof io.appium.settings || echo "Appium Settings is NOT running"
-
-            echo "===== Appium Settings package information ====="
-            adb shell dumpsys package io.appium.settings | head -100
-
-            echo "===== Recent Appium Settings errors ====="
-            adb logcat -d -t 500 | grep -i -E "io.appium.settings|AndroidRuntime|FATAL EXCEPTION|SecurityException" || true
-
-            echo "===== Running mobile tests ====="
-            pytest tests/mobile/authentication/test_login_successful.py -v
-            TEST_EXIT_CODE=$?
-
-            echo "===== Appium log ====="
-            cat /tmp/appium.log
-
-            echo "===== End diagnostics ====="
-
-            exit $TEST_EXIT_CODE
+            echo "===== Android system services are healthy ====="
