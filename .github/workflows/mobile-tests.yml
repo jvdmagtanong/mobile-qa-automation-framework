@@ -107,10 +107,16 @@ jobs:
             curl -sf "http://127.0.0.1:4723/status"
             echo "Appium server is ready."
 
-            echo "Installing test APK manually..."
-            adb install -r "$APK_PATH"
+            echo "===== Verifying Package Manager before APK installation ====="
 
-            echo "Checking installed package..."
+            adb shell pm path com.android.settings
+
+            echo "Package Manager is responding."
+
+            echo "===== Installing test APK manually ====="
+            adb install -r --no-incremental "$APK_PATH"
+
+            echo "===== Checking installed package ====="
             adb shell pm list packages | grep saucelabs
 
             echo "===== Inspecting UiAutomator2 installation ====="
@@ -146,4 +152,3 @@ jobs:
             echo "===== End diagnostics ====="
 
             exit $TEST_EXIT_CODE
-            
