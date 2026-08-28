@@ -128,15 +128,14 @@ jobs:
             appium driver list --installed
 
             echo "===== Installing Appium Settings APK ====="
-
-            SETTINGS_APK=$(find "$HOME/.appium" -path "*io.appium.settings*" -name "*.apk" -type f | head -1)
+            SETTINGS_APK="$HOME/.appium/node_modules/appium-uiautomator2-driver/node_modules/io.appium.settings/apks/settings_apk-debug.apk"
 
             echo "Settings APK: $SETTINGS_APK"
-
+            ls -lh "$SETTINGS_APK"
             adb install -r --no-incremental "$SETTINGS_APK"
 
             echo "Checking Appium Settings package:"
-            adb shell pm list packages | grep io.appium.settings || true
+            adb shell pm list packages | grep io.appium.settings
 
             echo "===== Running mobile tests ====="
             pytest tests/mobile/authentication/test_login_successful.py -v
