@@ -49,7 +49,7 @@ jobs:
         with:
           node-version: "22"
 
-            - name: Start Android emulator
+      - name: Start Android emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 34
