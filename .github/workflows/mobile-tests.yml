@@ -141,8 +141,7 @@ jobs:
             ls -lh /home/runner/.appium/node_modules/appium-uiautomator2-driver/node_modules/io.appium.settings/apks/settings_apk-debug.apk
 
             echo "Installing Settings APK:"
-            adb install -r --no-incremental \
-              /home/runner/.appium/node_modules/appium-uiautomator2-driver/node_modules/io.appium.settings/apks/settings_apk-debug.apk
+            adb install -r --no-incremental /home/runner/.appium/node_modules/appium-uiautomator2-driver/node_modules/io.appium.settings/apks/settings_apk-debug.apk
 
             echo "Checking Appium Settings package:"
             adb shell pm list packages | grep io.appium.settings
