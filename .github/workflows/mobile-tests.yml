@@ -100,5 +100,32 @@ jobs:
             adb shell pm list packages | grep saucelabs
 
             echo "===== Running mobile test ====="
-            pytest tests/mobile/authentication/test_login_successful.py -v
-            
+            pytest tests/mobile/authentication/test_login_successful.py -v --alluredir=test-reports/allure-results
+
+            TEST_EXIT_CODE=$?
+
+            echo "===== Test exit code: $TEST_EXIT_CODE ====="
+
+            echo "===== Screenshots ====="
+            find test-reports/screenshots -type f -print 2>/dev/null || true
+
+            echo "===== Allure results ====="
+            find test-reports/allure-results -type f -print 2>/dev/null || true
+
+            echo "===== Appium log ====="
+            cat /tmp/appium.log || true
+
+            echo "===== End diagnostics ====="
+
+            exit $TEST_EXIT_CODE
+      
+      - name: Upload mobile test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-test-results
+          path: |
+            test-reports/allure-results
+            test-reports/screenshots
+          if-no-files-found: warn
+        
