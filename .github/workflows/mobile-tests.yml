@@ -52,13 +52,25 @@ jobs:
       - name: Start Android emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 34
-          target: google_apis
+          api-level: 30
+          target: default
           arch: x86_64
           profile: pixel_6
-          emulator-options: -no-window -no-snapshot -noaudio -no-boot-anim -gpu swiftshader_indirect -no-metrics -no-snapshot-load -no-snapshot-save
+          disable-animations: false
+          emulator-options: -no-window -no-snapshot -noaudio -no-boot-anim -gpu swiftshader_indirect -no-metrics
           emulator-boot-timeout: 900
           script: |
+            echo "===== Waiting for System Services ====="
+            until adb shell pm path android > /dev/null 2>&1; do
+              echo "Waiting for Package Manager..."
+              sleep 3
+            done
+
+            echo "===== Disabling Animations Safely ====="
+            adb shell settings put global window_animation_scale 0.0
+            adb shell settings put global transition_animation_scale 0.0
+            adb shell settings put global animator_duration_scale 0.0
+
             echo "===== Installing Appium ====="
             npm install -g appium@3
 
@@ -86,13 +98,6 @@ jobs:
 
             echo "===== Verifying test APK ====="
             adb shell pm list packages | grep saucelabs
-
-            adb wait-for-device
-            while [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" != "1" ]; do sleep 2; done
-            adb shell input keyevent 82
-            adb shell settings put global window_animation_scale 0.0
-            adb shell settings put global transition_animation_scale 0.0
-            adb shell settings put global animator_duration_scale 0.0
 
             echo "===== Running mobile test ====="
             pytest tests/mobile/authentication/test_login_successful.py -v
