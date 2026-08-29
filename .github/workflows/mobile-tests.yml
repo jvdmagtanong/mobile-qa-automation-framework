@@ -62,7 +62,7 @@ jobs:
           api-level: 30
           target: default
           arch: x86_64
-          profile: pixel_6
+          profile: pixel_7
           disable-animations: false
           emulator-options: -no-window -no-snapshot -noaudio -no-boot-anim -gpu swiftshader_indirect -no-metrics
           emulator-boot-timeout: 600
