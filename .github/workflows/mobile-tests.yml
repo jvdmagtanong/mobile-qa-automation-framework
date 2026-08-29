@@ -52,16 +52,19 @@ jobs:
       - name: Start Android emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 30
+          api-level: 35
           target: default
           arch: x86_64
           profile: pixel_6
+          ram-size: 4096M 
+          heap-size: 512M
           disable-animations: false
           emulator-options: -no-window -no-snapshot -noaudio -no-boot-anim -gpu swiftshader_indirect -no-metrics
           emulator-boot-timeout: 900
           script: |
-            echo "===== Waiting for System Services ====="
             until adb shell pm path android > /dev/null 2>&1; do echo "Waiting for Package Manager..."; sleep 3; done
+
+            adb shell input keyevent 66 # Press Enter/OK on active dialogs
 
             echo "===== Verifying Page Size ====="
             adb shell getconf PAGE_SIZE
@@ -119,13 +122,32 @@ jobs:
 
             exit $TEST_EXIT_CODE
       
-      - name: Upload mobile test artifacts
+      - name: Install Allure
+        if: always()
+        run: |
+          npm install -g allure-commandline
+          allure --version
+
+      - name: Generate Allure HTML report
+        if: always()
+        run: |
+          echo "===== Generating Allure HTML report ====="
+          allure generate test-reports/allure-results --clean -o test-reports/allure-report
+          echo "===== Allure report generated ====="
+          find test-reports/allure-report -maxdepth 2 -type f | head -30
+
+      - name: Upload Allure HTML report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: mobile-test-results
-          path: |
-            test-reports/allure-results
-            test-reports/screenshots
+          name: allure-html-report
+          path: test-reports/allure-report
           if-no-files-found: warn
-        
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-test-screenshots
+          path: test-reports/screenshots
+          if-no-files-found: warn
