@@ -59,44 +59,26 @@ jobs:
       - name: Start Android emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 34
-          target: google_apis
+          api-level: 30
+          target: default
           arch: arm64-v8a
           profile: pixel_7
           ram-size: 4096M
           heap-size: 512M
-          disable-animations: true
-          emulator-options: -no-window -no-snapshot -noaudio -no-boot-anim -gpu swiftshader_indirect -camera-back none -camera-front none
-          emulator-boot-timeout: 900
+          disable-animations: false
+          emulator-options: -no-window -no-snapshot -noaudio -no-boot-anim -gpu swiftshader_indirect -no-metrics -camera-back none -camera-front none
+          emulator-boot-timeout: 300
           script: |
-            echo "===== Emulator started successfully ====="
+            echo "===== Waiting for System Services ====="
+            until adb shell pm path android > /dev/null 2>&1; do echo "Waiting for Package Manager..."; sleep 3; done
 
-            echo "ADB devices:"
-            adb devices
-
-            echo "Android version:"
-            adb shell getprop ro.build.version.release
-
-            echo "API level:"
-            adb shell getprop ro.build.version.sdk
-
-            echo "Architecture:"
-            adb shell getprop ro.product.cpu.abi
-
-            echo "Boot completed:"
-            adb shell getprop sys.boot_completed
-
-            echo "Page size:"
+            echo "===== Verifying Page Size ====="
             adb shell getconf PAGE_SIZE
 
-            echo "Package Manager:"
-            adb shell service check package
-
-            echo "Activity Manager:"
-            adb shell service check activity
-
-            echo "Settings:"
-            adb shell service check settings
+            echo "===== Disabling Animations Safely ====="
+            adb shell settings put global window_animation_scale 0.0
+            adb shell settings put global transition_animation_scale 0.0
+            adb shell settings put global animator_duration_scale 0.0
 
             echo "===== Installing Appium ====="
             npm install -g appium@3
@@ -104,20 +86,23 @@ jobs:
             echo "Appium version:"
             appium --version
 
-            echo "===== Installing UiAutomator2 ====="
+            echo "===== Installing UiAutomator2 driver ====="
             appium driver install uiautomator2
 
-            echo "===== Starting Appium ====="
+            echo "===== Starting Appium server ====="
             appium --address 127.0.0.1 --port 4723 --log-level debug > /tmp/appium.log 2>&1 &
 
+            echo "Waiting for Appium server..."
             sleep 5
 
+            echo "Checking Appium server..."
             curl -sf "http://127.0.0.1:4723/status"
+            echo "Appium server is ready."
 
-            echo "===== Installing application ====="
+            echo "===== Installing test APK ====="
             adb install -r --no-incremental "$APK_PATH"
 
-            echo "===== Running test ====="
+            echo "===== Running mobile test ====="
             pytest tests/mobile/authentication/test_login_successful.py -v --alluredir=test-reports/allure-results || true
 
             echo "===== Appium log ====="
