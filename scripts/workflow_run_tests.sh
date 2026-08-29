@@ -12,9 +12,15 @@ until [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = "1" ]; do
   sleep 3
 done
 
-echo "===== Suppressing System ANR & Crash Dialogs ====="
+echo "===== Disabling and Suppressing System Settings & ANR Dialogs ====="
+# Suppress error and ANR pop-ups globally
 adb shell settings put global hide_error_dialogs 1
 adb shell settings put global show_mute_in_crash_dialog 0
+
+# Force-stop system settings process so it cannot trigger ANR pop-ups
+adb shell am force-stop com.android.settings
+
+# Press back/enter to clear any lingering pop-ups
 adb shell input keyevent 66 || true
 adb shell input keyevent 4 || true
 

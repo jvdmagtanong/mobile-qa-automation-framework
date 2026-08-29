@@ -37,16 +37,14 @@ def driver():
             "appium:udid": DEVICE_UDID,
             "appium:appPackage": package_name,
             "appium:appWaitActivity": f"{package_name}.view.activities.MainActivity",
-            "appium:ensureWebviewsHavePages": True,
-            "appium:nativeWebScreenshot": True,
-            "appium:newCommandTimeout": 3600,
+            # Prevents Appium from modifying/resetting system settings app
+            "appium:skipServerInstallation": True,
+            "appium:ignoreUnimportantViews": True,
+            "appium:disableSuppression": True,
+            "appium:autoAcceptAlerts": True,
             "appium:autoGrantPermissions": True,
             "appium:uiautomator2ServerInstallTimeout": 120000,
             "appium:uiautomator2ServerLaunchTimeout": 120000,
-            "appium:appWaitDuration": 60000,
-            "appium:adbExecTimeout": 120000,
-            # Prevents settings app reset overhead between sessions
-            "appium:skipServerInstallation": False,
         }
     )
 
