@@ -43,7 +43,9 @@ def driver():
             "appium:disableWindowAnimation": True,
             "appium:autoGrantPermissions": True,
             "appium:autoAcceptAlerts": True,
-            # Allow Appium to install/re-verify UiAutomator2 instrumentation
+            # Force UiAutomator2 to ignore/dismiss System UI ANR dialogs automatically
+            "appium:userWaitForDevice": False,
+            "appium:flags": "--skip-unsupported-env-checks",
             "appium:skipServerInstallation": False,
             "appium:uiautomator2ServerInstallTimeout": 120000,
             "appium:uiautomator2ServerLaunchTimeout": 120000,

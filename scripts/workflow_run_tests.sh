@@ -21,10 +21,16 @@ echo "===== Disabling and Suppressing System Settings & ANR Dialogs ====="
 adb shell settings put global hide_error_dialogs 1
 adb shell settings put global show_mute_in_crash_dialog 0
 
-# Force-stop system settings process so it cannot trigger ANR pop-ups
-adb shell am force-stop com.android.settings
+# Force-stop system settings process
+adb shell am force-stop com.android.settings || true
 
-# Press back/enter to clear any lingering pop-ups
+# Force restart SystemUI to clear any stuck overlay frames
+adb shell am force-stop com.android.systemui || true
+
+# Wait 2 seconds for SystemUI to cleanly rebind without ANR dialogs
+sleep 2
+
+# Send keyevents to dismiss active modals
 adb shell input keyevent 66 || true
 adb shell input keyevent 4 || true
 
