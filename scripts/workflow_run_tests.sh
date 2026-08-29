@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-echo "===== Waiting for System Services and Boot Completion ====="
+echo "===== Waiting for System Services and Package Manager ====="
 until adb shell pm path android > /dev/null 2>&1; do
   echo "Waiting for Package Manager..."
   sleep 3
@@ -43,8 +43,10 @@ echo "Checking Appium server..."
 curl -sf "http://127.0.0.1:4723/status"
 echo "Appium server is ready."
 
-echo "===== Installing test APK ====="
-adb install -r --no-incremental "$APK_PATH"
+echo "===== Installing test APK safely ====="
+# Wait an extra moment to ensure Package Manager service isn't busy
+sleep 5
+adb install -r -g --no-streaming "$APK_PATH"
 
 echo "===== Running mobile test ====="
 pytest tests/mobile/authentication/test_login_successful.py -v --alluredir=test-reports/allure-results || true
