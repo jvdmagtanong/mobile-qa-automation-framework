@@ -61,10 +61,10 @@ jobs:
           emulator-boot-timeout: 900
           script: |
             echo "===== Waiting for System Services ====="
-            until adb shell pm path android > /dev/null 2>&1; do
-              echo "Waiting for Package Manager..."
-              sleep 3
-            done
+            until adb shell pm path android > /dev/null 2>&1; do echo "Waiting for Package Manager..."; sleep 3; done
+
+            echo "===== Verifying Page Size ====="
+            adb shell getconf PAGE_SIZE
 
             echo "===== Disabling Animations Safely ====="
             adb shell settings put global window_animation_scale 0.0
@@ -101,3 +101,4 @@ jobs:
 
             echo "===== Running mobile test ====="
             pytest tests/mobile/authentication/test_login_successful.py -v
+            
