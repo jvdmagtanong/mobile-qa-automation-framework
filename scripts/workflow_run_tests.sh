@@ -12,6 +12,10 @@ until [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = "1" ]; do
   sleep 3
 done
 
+echo "===== Cleaning prior UiAutomator2 Server packages ====="
+adb uninstall io.appium.uiautomator2.server || true
+adb uninstall io.appium.uiautomator2.server.test || true
+
 echo "===== Disabling and Suppressing System Settings & ANR Dialogs ====="
 # Suppress error and ANR pop-ups globally
 adb shell settings put global hide_error_dialogs 1

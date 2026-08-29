@@ -37,14 +37,17 @@ def driver():
             "appium:udid": DEVICE_UDID,
             "appium:appPackage": package_name,
             "appium:appWaitActivity": f"{package_name}.view.activities.MainActivity",
-            # Prevents Appium from modifying/resetting system settings app
-            "appium:skipServerInstallation": True,
-            "appium:ignoreUnimportantViews": True,
-            "appium:disableSuppression": True,
-            "appium:autoAcceptAlerts": True,
+            "appium:ensureWebviewsHavePages": True,
+            "appium:nativeWebScreenshot": True,
+            "appium:newCommandTimeout": 3600,
             "appium:autoGrantPermissions": True,
+            "appium:autoAcceptAlerts": True,
+            # Allow Appium to install/re-verify UiAutomator2 instrumentation
+            "appium:skipServerInstallation": False,
             "appium:uiautomator2ServerInstallTimeout": 120000,
             "appium:uiautomator2ServerLaunchTimeout": 120000,
+            "appium:appWaitDuration": 60000,
+            "appium:adbExecTimeout": 120000,
         }
     )
 
