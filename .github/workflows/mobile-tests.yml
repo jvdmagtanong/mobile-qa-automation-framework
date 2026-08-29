@@ -3,6 +3,11 @@ name: Mobile Automation Tests
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 env:
   APK_URL: https://github.com/saucelabs/my-demo-app-android/releases/download/2.2.0/mda-2.2.0-25.apk
   APK_PATH: apps/mda-2.2.0-25.apk
@@ -11,7 +16,7 @@ env:
 
 jobs:
   mobile-tests:
-    runs-on: ubuntu-latest
+    runs-on: macos-14
     environment: 
       name: mobile-test-automation
       url: ${{ steps.deployment.outputs.page_url }}
@@ -55,10 +60,10 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 34
-          target: default
+          target: google_apis
           arch: x86_64
           profile: pixel_7
-          ram-size: 8192M 
+          ram-size: 4096M 
           heap-size: 512M
           disable-animations: false
           emulator-options: -no-window -no-snapshot -noaudio -no-boot-anim -gpu swiftshader_indirect -no-metrics
@@ -142,14 +147,12 @@ jobs:
         if: always()
         uses: actions/configure-pages@v5
 
-      - name: Upload Allure HTML report
+      - name: Upload Allure report to Pages
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-pages-artifact@v3
         with:
-          name: allure-html-report
           path: test-reports/allure-report
-          if-no-files-found: warn
-      
+
       - name: Deploy to GitHub Pages
         if: always()
         id: deployment
