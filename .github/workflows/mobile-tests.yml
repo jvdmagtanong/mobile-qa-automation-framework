@@ -62,7 +62,7 @@ jobs:
           api-level: 30
           target: default
           arch: x86_64
-          profile: pixel_7
+          profile: pixel_3
           ram-size: 4096M
           heap-size: 512M
           disable-animations: true
