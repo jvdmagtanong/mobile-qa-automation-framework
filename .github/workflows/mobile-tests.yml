@@ -59,14 +59,14 @@ jobs:
       - name: Start Android emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 34
-          target: google_apis
+          api-level: 30
+          target: default
           arch: arm64-v8a 
           profile: pixel_7
-          ram-size: 4096M
-          heap-size: 512M
+          ram-size: 4096
+          heap-size: 512
           disable-animations: false
-          emulator-options: -no-window -no-snapshot -noaudio -no-boot-anim -gpu host -camera-back none -camera-front none
+          emulator-options: -no-window -no-snapshot -noaudio -no-boot-anim -gpu swiftshader_indirect -camera-back none -camera-front none
           emulator-boot-timeout: 900
           script: |
             until adb shell pm path android > /dev/null 2>&1; do echo "Waiting for Package Manager..."; sleep 3; done
