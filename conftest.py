@@ -36,7 +36,6 @@ def driver():
             "appium:deviceName": DEVICE_NAME,
             "appium:udid": DEVICE_UDID,
             "appium:appPackage": package_name,
-            "appium:appActivity": f"{package_name}.view.activities.MainActivity",
             "appium:appWaitActivity": f"{package_name}.view.activities.MainActivity",
             "appium:ensureWebviewsHavePages": True,
             "appium:nativeWebScreenshot": True,
