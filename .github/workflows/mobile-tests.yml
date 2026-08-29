@@ -12,7 +12,9 @@ env:
 jobs:
   mobile-tests:
     runs-on: ubuntu-latest
-    environment: mobile-test-automation
+    environment: 
+      name: mobile-test-automation
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Checkout repository
@@ -55,8 +57,8 @@ jobs:
           api-level: 34
           target: default
           arch: x86_64
-          profile: pixel_6
-          ram-size: 4096M 
+          profile: pixel_7
+          ram-size: 8192M 
           heap-size: 512M
           disable-animations: false
           emulator-options: -no-window -no-snapshot -noaudio -no-boot-anim -gpu swiftshader_indirect -no-metrics
@@ -135,6 +137,10 @@ jobs:
           allure generate test-reports/allure-results --clean -o test-reports/allure-report
           echo "===== Allure report generated ====="
           find test-reports/allure-report -maxdepth 2 -type f | head -30
+      
+      - name: Setup Pages
+        if: always()
+        uses: actions/configure-pages@v5
 
       - name: Upload Allure HTML report
         if: always()
@@ -143,11 +149,8 @@ jobs:
           name: allure-html-report
           path: test-reports/allure-report
           if-no-files-found: warn
-
-      - name: Upload screenshots
+      
+      - name: Deploy to GitHub Pages
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: mobile-test-screenshots
-          path: test-reports/screenshots
-          if-no-files-found: warn
+        id: deployment
+        uses: actions/deploy-pages@v4
