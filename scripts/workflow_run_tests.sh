@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+set -e
+
+echo "===== Waiting for System Services and Boot Completion ====="
+until adb shell pm path android > /dev/null 2>&1; do
+  echo "Waiting for Package Manager..."
+  sleep 3
+done
+
+until [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = "1" ]; do
+  echo "Waiting for full boot completion..."
+  sleep 3
+done
+
+echo "===== Suppressing System ANR & Crash Dialogs ====="
+adb shell settings put global hide_error_dialogs 1
+adb shell settings put global show_mute_in_crash_dialog 0
+adb shell input keyevent 66 || true
+adb shell input keyevent 4 || true
+
+echo "===== Verifying Page Size ====="
+adb shell getconf PAGE_SIZE
+
+echo "===== Disabling Animations Safely ====="
+adb shell settings put global window_animation_scale 0.0
+adb shell settings put global transition_animation_scale 0.0
+adb shell settings put global animator_duration_scale 0.0
+
+echo "===== Installing Appium ====="
+npm install -g appium@3
+appium --version
+
+echo "===== Installing UiAutomator2 driver ====="
+appium driver install uiautomator2
+
+echo "===== Starting Appium server ====="
+appium --address 127.0.0.1 --port 4723 --log-level debug > /tmp/appium.log 2>&1 &
+
+echo "Waiting for Appium server..."
+sleep 5
+
+echo "Checking Appium server..."
+curl -sf "http://127.0.0.1:4723/status"
+echo "Appium server is ready."
+
+echo "===== Installing test APK ====="
+adb install -r --no-incremental "$APK_PATH"
+
+echo "===== Running mobile test ====="
+pytest tests/mobile/authentication/test_login_successful.py -v --alluredir=test-reports/allure-results || true
+
+echo "===== Appium log ====="
+cat /tmp/appium.log || true
