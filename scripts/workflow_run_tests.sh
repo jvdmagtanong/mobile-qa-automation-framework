@@ -65,7 +65,7 @@ sleep 5
 adb install -r -g --no-streaming "$APK_PATH"
 
 echo "===== Running mobile test ====="
-pytest tests/mobile/authentication/test_login_successful.py -v --alluredir=test-reports/allure-results || true
+pytest tests/mobile/ -v --alluredir=test-reports/allure-results || true
 
 echo "===== Appium log ====="
 cat /tmp/appium.log || true
