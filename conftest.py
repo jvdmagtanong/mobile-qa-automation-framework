@@ -47,7 +47,7 @@ def driver():
             "appium:userWaitForDevice": False,
             "appium:flags": "--skip-unsupported-env-checks",
             # Skip background helper installation during session creation
-            "appium:skipServerInstallation": True,
+            "appium:skipServerInstallation": False,
             "appium:skipDeviceInitialization": True,
             "appium:uiautomator2ServerInstallTimeout": 120000,
             "appium:uiautomator2ServerLaunchTimeout": 120000,
