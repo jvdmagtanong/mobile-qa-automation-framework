@@ -64,29 +64,17 @@ echo "===== Installing test APK safely ====="
 sleep 5
 adb install -r -g --no-streaming "$APK_PATH"
 
-# Start a background watchdog that clicks "Wait" on System UI dialogs if they pop up
-(
-  while true; do
-    # Search for the "Wait" text or button on screen and tap it if present
-    adb shell uiautomator dump /sdcard/window_dump.xml > /dev/null 2>&1 || true
-    if adb shell cat /sdcard/window_dump.xml 2>/dev/null | grep -q "System UI isn't responding"; then
-      echo "===== Detected System UI ANR Dialog - Clicking Wait ====="
-      # Press TAB then ENTER to focus and click 'Wait'
-      adb shell input keyevent 61
-      adb shell input keyevent 66
-    fi
-    sleep 3
-  done
-) &
-WATCHDOG_PID=$!
+echo "===== Pre-installing Appium Settings Helper ====="
+# Find and pre-install the settings APK provided by the driver
+SETTINGS_APK=$(find /home/runner/.appium -name "settings_apk-debug.apk" | head -n 1)
+if [ -n "$SETTINGS_APK" ]; then
+  adb install -r -g "$SETTINGS_APK" || true
+fi
 
 echo "===== Running mobile test ====="
 pytest tests/mobile/authentication/test_login_successful.py -v --alluredir=test-reports/allure-results || true
 
 TEST_EXIT_CODE=$?
-
-# Kill watchdog when tests finish
-kill $WATCHDOG_PID || true
 
 echo "===== Appium log ====="
 cat /tmp/appium.log || true
