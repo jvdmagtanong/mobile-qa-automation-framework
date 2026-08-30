@@ -44,7 +44,7 @@ def driver():
             "appium:autoGrantPermissions": True,
             "appium:autoAcceptAlerts": True,
             # Force UiAutomator2 to ignore/dismiss System UI ANR dialogs automatically
-            "appium:userWaitForDevice": True,
+            "appium:userWaitForDevice": False,
             "appium:flags": "--skip-unsupported-env-checks",
             # Skip background helper installation during session creation
             "appium:skipServerInstallation": False,
