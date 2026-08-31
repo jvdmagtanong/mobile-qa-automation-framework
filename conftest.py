@@ -30,7 +30,9 @@ def driver():
             "appium:disableWindowAnimation": True,
             "appium:autoGrantPermissions": True,
             "appium:autoAcceptAlerts": True,
-            "appium:skipServerInstallation": False,
+            # CRITICAL FIX FOR ACCESSIBILITY TIMEOUT:
+            # Tells UiAutomator2 NOT to wait for UI thread to become idle before finding elements
+            "appium:waitForIdleTimeout": 0,
             "appium:uiautomator2ServerInstallTimeout": 120000,
             "appium:uiautomator2ServerLaunchTimeout": 120000,
             "appium:appWaitDuration": 60000,
@@ -41,6 +43,14 @@ def driver():
     driver = webdriver.Remote(
         f"http://{APPIUM_HOST}:{APPIUM_PORT}",
         options=options,
+    )
+
+    # Force the active server session to skip waiting for UI thread idleness
+    driver.update_settings(
+        {
+            "waitForIdleTimeout": 0,
+            "actionAcknowledgmentTimeout": 0,
+        }
     )
 
     yield driver
