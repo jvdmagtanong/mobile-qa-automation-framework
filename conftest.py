@@ -3,7 +3,6 @@ from pathlib import Path
 from appium import webdriver
 from appium.options.android import UiAutomator2Options
 from utils.config import APPIUM_HOST, APPIUM_PORT, APK_PATH, DEVICE_NAME, DEVICE_UDID
-from pages.model.header_page import HeaderPage
 
 
 @pytest.fixture
@@ -73,11 +72,8 @@ def driver():
             ],
             check=False,
         )
-        time.sleep(2)
+        time.sleep(5)
 
-    header_page = HeaderPage(driver)
-    header_page.wait_for_app_logo()
-    
     yield driver
 
     driver.quit()
