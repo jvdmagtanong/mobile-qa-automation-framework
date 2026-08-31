@@ -36,13 +36,10 @@ def driver():
             "appium:deviceName": DEVICE_NAME,
             "appium:udid": DEVICE_UDID,
             "appium:appPackage": package_name,
-            # Explicitly define the launch activity
-            "appium:appActivity": f"{package_name}.view.activities.MainActivity",
+            # Exported launcher activity (prevents SecurityException)
+            "appium:appActivity": f"{package_name}.view.activities.SplashActivity",
+            # Target activity to wait for before starting test steps
             "appium:appWaitActivity": f"{package_name}.view.activities.MainActivity",
-            # Force launch app and bring to foreground
-            "appium:forceAppLaunch": True,
-            "appium:noReset": False,
-            "appium:fullReset": False,
             "appium:ensureWebviewsHavePages": True,
             "appium:nativeWebScreenshot": True,
             "appium:newCommandTimeout": 3600,
