@@ -11,7 +11,6 @@ def driver():
     app_path = project_root / APK_PATH
     package_name = "com.saucelabs.mydemoapp.android"
 
-    # Ensure app is installed cleanly without subprocess lockups
     subprocess.run(["adb", "install", "-r", "-g", str(app_path)], check=True)
 
     options = UiAutomator2Options()
@@ -30,8 +29,6 @@ def driver():
             "appium:disableWindowAnimation": True,
             "appium:autoGrantPermissions": True,
             "appium:autoAcceptAlerts": True,
-            # Skip background settings app check to bypass the 30000ms timeout
-            "appium:skipServerInstallation": True,
             "appium:ignoreHiddenApiPolicyError": True,
             "appium:uiautomator2ServerInstallTimeout": 120000,
             "appium:uiautomator2ServerLaunchTimeout": 120000,
@@ -45,7 +42,7 @@ def driver():
         options=options,
     )
 
-    # Force UiAutomator2 to bypass accessibility idle waits (use 10ms instead of 0)
+    # Bypass accessibility idle waiting during element lookup (keeps tests fast)
     driver.update_settings(
         {
             "waitForIdleTimeout": 10,
@@ -54,7 +51,6 @@ def driver():
         }
     )
 
-    # Allow SplashActivity transition to MainActivity to complete safely
     time.sleep(2)
 
     yield driver

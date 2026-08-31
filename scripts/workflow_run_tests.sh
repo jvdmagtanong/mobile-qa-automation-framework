@@ -49,9 +49,6 @@ echo "===== Pre-installing Appium Settings Helper ====="
 SETTINGS_APK=$(find /home/runner/.appium -name "settings_apk-debug.apk" 2>/dev/null | head -n 1)
 if [ -n "$SETTINGS_APK" ]; then
   adb install -r -g "$SETTINGS_APK" || true
-  # Grant explicit background execution permissions
-  adb shell pm grant io.appium.settings android.permission.SET_ANIMATION_SCALE || true
-  adb shell am start-activity -n io.appium.settings/.Settings || true
 fi
 
 echo "===== Pre-clearing App State ====="
