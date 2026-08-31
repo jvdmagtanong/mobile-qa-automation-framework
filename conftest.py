@@ -1,4 +1,4 @@
-import pytest, allure, time
+import time, pytest, allure
 from pathlib import Path
 from appium import webdriver
 from appium.options.android import UiAutomator2Options
@@ -29,13 +29,18 @@ def driver():
             "appium:autoGrantPermissions": True,
             "appium:autoAcceptAlerts": True,
             "appium:ignoreHiddenApiPolicyError": True,
-            # BYPASS SETTINGS APP TIMEOUT
+            # BYPASS APPIUM SETTINGS APP TIMEOUT
             "appium:skipAppiumServerInstall": True,
             "appium:skipUnlock": True,
-            "appium:uiautomator2ServerInstallTimeout": 120000,
-            "appium:uiautomator2ServerLaunchTimeout": 120000,
+            # CLEARS CACHE, APP DATA & CART STATE BETWEEN TESTS
+            "appium:noReset": False,
+            "appium:fullReset": False,
+            # EXTENDED INSTALLATION & ADB TIMEOUTS FOR HEAVY CI LOAD
+            "appium:androidInstallTimeout": 180000,
+            "appium:uiautomator2ServerInstallTimeout": 180000,
+            "appium:uiautomator2ServerLaunchTimeout": 180000,
             "appium:appWaitDuration": 60000,
-            "appium:adbExecTimeout": 120000,
+            "appium:adbExecTimeout": 180000,
             "appium:settings": {
                 "waitForIdleTimeout": 0,
                 "actionAcknowledgmentTimeout": 0,
