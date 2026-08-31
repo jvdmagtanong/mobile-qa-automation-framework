@@ -19,9 +19,11 @@ echo "===== Cleaning Prior UiAutomator2 Server Packages ====="
 adb uninstall io.appium.uiautomator2.server || true
 adb uninstall io.appium.uiautomator2.server.test || true
 
-echo "===== Disabling and Suppressing System Settings & ANR Dialogs ====="
+echo "===== Suppressing System UI ANRs Natively ====="
 adb shell settings put global hide_error_dialogs 1 || true
 adb shell settings put global show_mute_in_crash_dialog 0 || true
+# Prevent SystemUI from throwing ANR modals when CPU load spikes
+adb shell setprop persist.sys.anr.timeout 60000 || true
 
 adb shell am force-stop com.android.settings || true
 adb shell am force-stop com.android.systemui || true

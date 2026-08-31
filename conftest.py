@@ -42,7 +42,6 @@ def driver():
         options=options,
     )
 
-    # Bypass accessibility idle waits during element lookup
     driver.update_settings(
         {
             "waitForIdleTimeout": 10,
@@ -51,13 +50,29 @@ def driver():
         }
     )
 
-    # Give SplashActivity time to finish transition to MainActivity
     time.sleep(3)
 
-    # DISMISS SYSTEM UI ANR OVERLAY IF PRESENT:
-    # Keyevent 66 (Enter) hits 'Wait', Keyevent 4 (Back) dismisses the dialog frame
-    subprocess.run(["adb", "shell", "input", "keyevent", "66"], check=False)
-    subprocess.run(["adb", "shell", "input", "keyevent", "4"], check=False)
+    # Verify if app was closed or sent to background by system ANR
+    current_package = subprocess.run(
+        ["adb", "shell", "dumpsys", "window", "|", "grep", "-E", "mCurrentFocus"],
+        capture_output=True,
+        text=True,
+    ).stdout
+
+    if package_name not in current_package:
+        # Relaunch MainActivity directly if System UI kicked device to home screen
+        subprocess.run(
+            [
+                "adb",
+                "shell",
+                "am",
+                "start",
+                "-n",
+                f"{package_name}/{package_name}.view.activities.SplashActivity",
+            ],
+            check=False,
+        )
+        time.sleep(2)
 
     yield driver
 
