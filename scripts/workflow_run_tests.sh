@@ -26,8 +26,13 @@ adb shell settings put global window_animation_scale 0.0 || true
 adb shell settings put global transition_animation_scale 0.0 || true
 adb shell settings put global animator_duration_scale 0.0 || true
 
-# Grant background permission to prevent settings app blockages
-adb shell pm grant io.appium.settings android.permission.SET_ANIMATION_SCALE || true
+echo "===== Pre-building & Starting Appium Settings Helper ====="
+SETTINGS_APK=$(find /home/runner/.appium -name "settings_apk-debug.apk" 2>/dev/null | head -n 1)
+if [ -n "$SETTINGS_APK" ]; then
+  adb install -r -g "$SETTINGS_APK" || true
+  adb shell pm grant io.appium.settings android.permission.SET_ANIMATION_SCALE || true
+  adb shell am start-foreground-service -n io.appium.settings/.SettingsService || true
+fi
 
 echo "===== Installing Appium & Driver ====="
 npm install -g appium@3

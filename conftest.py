@@ -1,4 +1,4 @@
-import time, pytest, allure
+import subprocess, time, pytest, allure
 from pathlib import Path
 from appium import webdriver
 from appium.options.android import UiAutomator2Options
@@ -10,6 +10,9 @@ def driver():
     project_root = Path(__file__).parent
     app_path = project_root / APK_PATH
     package_name = "com.saucelabs.mydemoapp.android"
+
+    # Wipes app cache, local preferences, and shopping cart state cleanly between runs
+    subprocess.run(["adb", "shell", "pm", "clear", package_name], check=False)
 
     options = UiAutomator2Options()
     options.load_capabilities(
@@ -29,18 +32,15 @@ def driver():
             "appium:autoGrantPermissions": True,
             "appium:autoAcceptAlerts": True,
             "appium:ignoreHiddenApiPolicyError": True,
-            # BYPASS APPIUM SETTINGS APP TIMEOUT
-            "appium:skipAppiumServerInstall": True,
             "appium:skipUnlock": True,
-            # CLEARS CACHE, APP DATA & CART STATE BETWEEN TESTS
-            "appium:noReset": False,
-            "appium:fullReset": False,
+            "appium:noReset": True,
             # EXTENDED INSTALLATION & ADB TIMEOUTS FOR HEAVY CI LOAD
             "appium:androidInstallTimeout": 180000,
             "appium:uiautomator2ServerInstallTimeout": 180000,
             "appium:uiautomator2ServerLaunchTimeout": 180000,
             "appium:appWaitDuration": 60000,
             "appium:adbExecTimeout": 180000,
+            # NATIVE UIAUTOMATOR2 ACCESSIBILITY SETTINGS
             "appium:settings": {
                 "waitForIdleTimeout": 0,
                 "actionAcknowledgmentTimeout": 0,
