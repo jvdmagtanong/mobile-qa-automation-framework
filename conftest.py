@@ -1,4 +1,4 @@
-import subprocess, time, pytest, allure
+import time, pytest, allure
 from pathlib import Path
 from appium import webdriver
 from appium.options.android import UiAutomator2Options
@@ -11,9 +11,6 @@ def driver():
     app_path = project_root / APK_PATH
     package_name = "com.saucelabs.mydemoapp.android"
 
-    # Wipes app cache, local preferences, and shopping cart state cleanly between runs
-    subprocess.run(["adb", "shell", "pm", "clear", package_name], check=False)
-
     options = UiAutomator2Options()
     options.load_capabilities(
         {
@@ -24,7 +21,9 @@ def driver():
             "appium:app": str(app_path),
             "appium:appPackage": package_name,
             "appium:appActivity": f"{package_name}.view.activities.SplashActivity",
-            "appium:appWaitActivity": f"{package_name}.view.activities.MainActivity",
+            "appium:appWaitActivity": f"{package_name}.view.activities.SplashActivity,{package_name}.view.activities.MainActivity",
+            "appium:appWaitPackage": package_name,
+            "appium:appWaitDuration": 60000,
             "appium:ensureWebviewsHavePages": True,
             "appium:nativeWebScreenshot": True,
             "appium:newCommandTimeout": 3600,
@@ -33,14 +32,12 @@ def driver():
             "appium:autoAcceptAlerts": True,
             "appium:ignoreHiddenApiPolicyError": True,
             "appium:skipUnlock": True,
+            # KEEP PERMISSIONS INTACT SO NO FIRST-RUN DIALOGS APPEAR
             "appium:noReset": True,
-            # EXTENDED INSTALLATION & ADB TIMEOUTS FOR HEAVY CI LOAD
             "appium:androidInstallTimeout": 180000,
             "appium:uiautomator2ServerInstallTimeout": 180000,
             "appium:uiautomator2ServerLaunchTimeout": 180000,
-            "appium:appWaitDuration": 60000,
             "appium:adbExecTimeout": 180000,
-            # NATIVE UIAUTOMATOR2 ACCESSIBILITY SETTINGS
             "appium:settings": {
                 "waitForIdleTimeout": 0,
                 "actionAcknowledgmentTimeout": 0,
@@ -61,6 +58,17 @@ def driver():
             "shouldAwaitFirstOnscreenFrame": False,
         }
     )
+
+    # CLEAR APP CACHE & CART STATE SAFELY
+    try:
+        driver.execute_script("mobile: clearApp", {"appId": package_name})
+        time.sleep(1)
+        driver.terminate_app(package_name)
+        time.sleep(1)
+        driver.activate_app(package_name)
+        time.sleep(3)
+    except Exception:
+        pass
 
     time.sleep(3)
 

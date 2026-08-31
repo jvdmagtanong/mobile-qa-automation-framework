@@ -13,26 +13,12 @@ until adb shell pm path android > /dev/null 2>&1; do
   sleep 3
 done
 
-sleep 5
+sleep 10
 
-echo "===== Cleaning Prior UiAutomator2 Server Packages ====="
-adb uninstall io.appium.uiautomator2.server || true
-adb uninstall io.appium.uiautomator2.server.test || true
-
-echo "===== Disabling System Animations & Crash Dialogs ====="
-adb shell settings put global hide_error_dialogs 1 || true
-adb shell settings put global show_mute_in_crash_dialog 0 || true
+echo "===== Disabling System Animations ====="
 adb shell settings put global window_animation_scale 0.0 || true
 adb shell settings put global transition_animation_scale 0.0 || true
 adb shell settings put global animator_duration_scale 0.0 || true
-
-echo "===== Pre-building & Starting Appium Settings Helper ====="
-SETTINGS_APK=$(find /home/runner/.appium -name "settings_apk-debug.apk" 2>/dev/null | head -n 1)
-if [ -n "$SETTINGS_APK" ]; then
-  adb install -r -g "$SETTINGS_APK" || true
-  adb shell pm grant io.appium.settings android.permission.SET_ANIMATION_SCALE || true
-  adb shell am start-foreground-service -n io.appium.settings/.SettingsService || true
-fi
 
 echo "===== Installing Appium & Driver ====="
 npm install -g appium@3
