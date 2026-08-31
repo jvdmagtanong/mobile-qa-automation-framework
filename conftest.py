@@ -30,9 +30,9 @@ def driver():
             "appium:disableWindowAnimation": True,
             "appium:autoGrantPermissions": True,
             "appium:autoAcceptAlerts": True,
-            # CRITICAL FIX FOR ACCESSIBILITY TIMEOUT:
-            # Tells UiAutomator2 NOT to wait for UI thread to become idle before finding elements
-            "appium:waitForIdleTimeout": 0,
+            # Skip background settings app check to bypass the 30000ms timeout
+            "appium:skipServerInstallation": True,
+            "appium:ignoreHiddenApiPolicyError": True,
             "appium:uiautomator2ServerInstallTimeout": 120000,
             "appium:uiautomator2ServerLaunchTimeout": 120000,
             "appium:appWaitDuration": 60000,
