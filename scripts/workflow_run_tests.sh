@@ -13,9 +13,10 @@ until adb shell pm path android > /dev/null 2>&1; do
   sleep 3
 done
 
-sleep 10
+sleep 15
 
-echo "===== Disabling System Animations ====="
+echo "===== Disabling System Animations & System Dialogs ====="
+adb shell settings put global hide_error_dialogs 1 || true
 adb shell settings put global window_animation_scale 0.0 || true
 adb shell settings put global transition_animation_scale 0.0 || true
 adb shell settings put global animator_duration_scale 0.0 || true

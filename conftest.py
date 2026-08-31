@@ -38,11 +38,6 @@ def driver():
             "appium:uiautomator2ServerInstallTimeout": 180000,
             "appium:uiautomator2ServerLaunchTimeout": 180000,
             "appium:adbExecTimeout": 180000,
-            "appium:settings": {
-                "waitForIdleTimeout": 0,
-                "actionAcknowledgmentTimeout": 0,
-                "shouldAwaitFirstOnscreenFrame": False,
-            },
         }
     )
 
@@ -55,7 +50,6 @@ def driver():
         {
             "waitForIdleTimeout": 0,
             "actionAcknowledgmentTimeout": 0,
-            "shouldAwaitFirstOnscreenFrame": False,
         }
     )
 
