@@ -11,6 +11,7 @@ def driver():
     app_path = project_root / APK_PATH
     package_name = "com.saucelabs.mydemoapp.android"
 
+    # Pre-install APK directly via ADB
     subprocess.run(["adb", "install", "-r", "-g", str(app_path)], check=True)
 
     options = UiAutomator2Options()
@@ -33,7 +34,13 @@ def driver():
             "appium:uiautomator2ServerInstallTimeout": 120000,
             "appium:uiautomator2ServerLaunchTimeout": 120000,
             "appium:appWaitDuration": 60000,
-            "appium:adbExecTimeout": 480000,
+            "appium:adbExecTimeout": 120000,
+            # CRITICAL PERMANENT FIX: Pass server settings natively inside session creation payload
+            "appium:settings": {
+                "waitForIdleTimeout": 0,
+                "actionAcknowledgmentTimeout": 0,
+                "shouldAwaitFirstOnscreenFrame": False,
+            },
         }
     )
 
@@ -42,37 +49,17 @@ def driver():
         options=options,
     )
 
+    # Re-enforce explicitly on active session
     driver.update_settings(
         {
-            "waitForIdleTimeout": 10,
+            "waitForIdleTimeout": 0,
             "actionAcknowledgmentTimeout": 0,
             "shouldAwaitFirstOnscreenFrame": False,
         }
     )
 
+    # Pause briefly for Splash -> Main Activity transition without keyevent hacks
     time.sleep(3)
-
-    # Verify if app was closed or sent to background by system ANR
-    current_package = subprocess.run(
-        ["adb", "shell", "dumpsys", "window", "|", "grep", "-E", "mCurrentFocus"],
-        capture_output=True,
-        text=True,
-    ).stdout
-
-    if package_name not in current_package:
-        # Relaunch MainActivity directly if System UI kicked device to home screen
-        subprocess.run(
-            [
-                "adb",
-                "shell",
-                "am",
-                "start",
-                "-n",
-                f"{package_name}/{package_name}.view.activities.SplashActivity",
-            ],
-            check=False,
-        )
-        time.sleep(5)
 
     yield driver
 
