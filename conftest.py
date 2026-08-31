@@ -1,4 +1,4 @@
-import subprocess, pytest, allure
+import subprocess, pytest, allure, time
 from pathlib import Path
 from appium import webdriver
 from appium.options.android import UiAutomator2Options
@@ -45,13 +45,17 @@ def driver():
         options=options,
     )
 
-    # Force the active server session to skip waiting for UI thread idleness
+    # Force UiAutomator2 to bypass accessibility idle waits (use 10ms instead of 0)
     driver.update_settings(
         {
-            "waitForIdleTimeout": 0,
+            "waitForIdleTimeout": 10,
             "actionAcknowledgmentTimeout": 0,
+            "shouldAwaitFirstOnscreenFrame": False,
         }
     )
+
+    # Allow SplashActivity transition to MainActivity to complete safely
+    time.sleep(2)
 
     yield driver
 
