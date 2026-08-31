@@ -11,22 +11,8 @@ def driver():
     app_path = project_root / APK_PATH
     package_name = "com.saucelabs.mydemoapp.android"
 
-    package_check = subprocess.run(
-        ["adb", "shell", "pm", "list", "packages", package_name],
-        capture_output=True,
-        text=True,
-    )
-
-    if package_name in package_check.stdout:
-        subprocess.run(
-            ["adb", "shell", "pm", "clear", package_name],
-            check=True,
-        )
-    else:
-        subprocess.run(
-            ["adb", "install", "-r", str(app_path)],
-            check=True,
-        )
+    # Ensure app is installed cleanly without subprocess lockups
+    subprocess.run(["adb", "install", "-r", "-g", str(app_path)], check=True)
 
     options = UiAutomator2Options()
     options.load_capabilities(
@@ -36,9 +22,7 @@ def driver():
             "appium:deviceName": DEVICE_NAME,
             "appium:udid": DEVICE_UDID,
             "appium:appPackage": package_name,
-            # Exported launcher activity (prevents SecurityException)
             "appium:appActivity": f"{package_name}.view.activities.SplashActivity",
-            # Target activity to wait for before starting test steps
             "appium:appWaitActivity": f"{package_name}.view.activities.MainActivity",
             "appium:ensureWebviewsHavePages": True,
             "appium:nativeWebScreenshot": True,
@@ -46,6 +30,7 @@ def driver():
             "appium:disableWindowAnimation": True,
             "appium:autoGrantPermissions": True,
             "appium:autoAcceptAlerts": True,
+            "appium:skipServerInstallation": False,
             "appium:uiautomator2ServerInstallTimeout": 120000,
             "appium:uiautomator2ServerLaunchTimeout": 120000,
             "appium:appWaitDuration": 60000,
