@@ -1,46 +1,46 @@
 #!/usr/bin/env bash
-set -e
+set +e
 
-echo "===== Waiting for System Services and Package Manager ====="
-until adb shell pm path android > /dev/null 2>&1; do
-  echo "Waiting for Package Manager..."
-  sleep 3
-done
-
+echo "===== Waiting for Full Boot Completion ====="
 until [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = "1" ]; do
-  echo "Waiting for full boot completion..."
+  echo "Waiting for sys.boot_completed..."
   sleep 3
 done
 
-echo "===== Cleaning prior UiAutomator2 Server packages ====="
+echo "===== Waiting for Package Manager Service to Settle ====="
+# Check that the system package manager daemon actively responds to IPC calls
+until adb shell pm path android > /dev/null 2>&1; do
+  echo "Package Manager service starting up..."
+  sleep 3
+done
+
+# Extra buffer to let background system services bind IPC sockets
+sleep 5
+
+echo "===== Cleaning Prior UiAutomator2 Server Packages ====="
 adb uninstall io.appium.uiautomator2.server || true
 adb uninstall io.appium.uiautomator2.server.test || true
 
 echo "===== Disabling and Suppressing System Settings & ANR Dialogs ====="
-# Suppress error and ANR pop-ups globally
-adb shell settings put global hide_error_dialogs 1
-adb shell settings put global show_mute_in_crash_dialog 0
+adb shell settings put global hide_error_dialogs 1 || true
+adb shell settings put global show_mute_in_crash_dialog 0 || true
 
-# Force-stop system settings process
+# Force-stop settings and restart System UI cleanly
 adb shell am force-stop com.android.settings || true
-
-# Force restart SystemUI to clear any stuck overlay frames
 adb shell am force-stop com.android.systemui || true
-
-# Wait 2 seconds for SystemUI to cleanly rebind without ANR dialogs
 sleep 2
 
-# Send keyevents to dismiss active modals
+# Dismiss any active system popups
 adb shell input keyevent 66 || true
 adb shell input keyevent 4 || true
 
 echo "===== Verifying Page Size ====="
-adb shell getconf PAGE_SIZE
+adb shell getconf PAGE_SIZE || true
 
 echo "===== Disabling Animations Safely ====="
-adb shell settings put global window_animation_scale 0.0
-adb shell settings put global transition_animation_scale 0.0
-adb shell settings put global animator_duration_scale 0.0
+adb shell settings put global window_animation_scale 0.0 || true
+adb shell settings put global transition_animation_scale 0.0 || true
+adb shell settings put global animator_duration_scale 0.0 || true
 
 echo "===== Installing Appium ====="
 npm install -g appium@3
@@ -60,8 +60,7 @@ curl -sf "http://127.0.0.1:4723/status"
 echo "Appium server is ready."
 
 echo "===== Pre-installing Appium Settings Helper ====="
-# Find and pre-install the settings APK provided by the driver
-SETTINGS_APK=$(find /home/runner/.appium -name "settings_apk-debug.apk" | head -n 1)
+SETTINGS_APK=$(find /home/runner/.appium -name "settings_apk-debug.apk" 2>/dev/null | head -n 1)
 if [ -n "$SETTINGS_APK" ]; then
   adb install -r -g "$SETTINGS_APK" || true
 fi
@@ -70,10 +69,28 @@ echo "===== Pre-clearing App State ====="
 adb shell am force-stop com.saucelabs.mydemoapp.android || true
 sleep 2
 
-echo "===== Running mobile test ====="
-pytest tests/mobile/authentication/test_login_successful.py -v --alluredir=test-reports/allure-results || true
+echo "===== Starting Background System UI Watchdog ====="
+(
+  while true; do
+    adb shell uiautomator dump /sdcard/window_dump.xml > /dev/null 2>&1 || true
+    if adb shell cat /sdcard/window_dump.xml 2>/dev/null | grep -q "System UI isn't responding"; then
+      echo "===== Detected System UI ANR Dialog - Dismissing ====="
+      adb shell input keyevent 61 || true
+      adb shell input keyevent 66 || true
+    fi
+    sleep 3
+  done
+) &
+WATCHDOG_PID=$!
 
+echo "===== Running Mobile Test ====="
+set +e
+pytest tests/mobile/authentication/test_login_successful.py -v --alluredir=test-reports/allure-results
 TEST_EXIT_CODE=$?
+set -e
+
+# Stop watchdog background loop
+kill $WATCHDOG_PID || true
 
 echo ""
 
