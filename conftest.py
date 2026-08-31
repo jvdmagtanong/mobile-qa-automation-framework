@@ -11,9 +11,7 @@ def driver():
     app_path = project_root / APK_PATH
     package_name = "com.saucelabs.mydemoapp.android"
 
-    # Pre-install APK directly via ADB
-    subprocess.run(["adb", "install", "-r", "-g", str(app_path)], check=True)
-
+    
     options = UiAutomator2Options()
     options.load_capabilities(
         {
@@ -21,6 +19,8 @@ def driver():
             "appium:automationName": "UiAutomator2",
             "appium:deviceName": DEVICE_NAME,
             "appium:udid": DEVICE_UDID,
+            # Let Appium handle installation directly:
+            "appium:app": str(app_path),
             "appium:appPackage": package_name,
             "appium:appActivity": f"{package_name}.view.activities.SplashActivity",
             "appium:appWaitActivity": f"{package_name}.view.activities.MainActivity",
@@ -35,7 +35,6 @@ def driver():
             "appium:uiautomator2ServerLaunchTimeout": 120000,
             "appium:appWaitDuration": 60000,
             "appium:adbExecTimeout": 120000,
-            # CRITICAL PERMANENT FIX: Pass server settings natively inside session creation payload
             "appium:settings": {
                 "waitForIdleTimeout": 0,
                 "actionAcknowledgmentTimeout": 0,
