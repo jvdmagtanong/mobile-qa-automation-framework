@@ -5,6 +5,7 @@ from pages.locator.header_locator import HeaderLocator
 class HeaderPage(BasePage):
 
     def __init__(self, driver):
+        super().__init__(driver)
         self.wait_for_app_logo()
 
     def wait_for_app_logo(self):
