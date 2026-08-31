@@ -42,7 +42,7 @@ def driver():
         options=options,
     )
 
-    # Bypass accessibility idle waiting during element lookup (keeps tests fast)
+    # Bypass accessibility idle waits during element lookup
     driver.update_settings(
         {
             "waitForIdleTimeout": 10,
@@ -51,7 +51,13 @@ def driver():
         }
     )
 
-    time.sleep(2)
+    # Give SplashActivity time to finish transition to MainActivity
+    time.sleep(3)
+
+    # DISMISS SYSTEM UI ANR OVERLAY IF PRESENT:
+    # Keyevent 66 (Enter) hits 'Wait', Keyevent 4 (Back) dismisses the dialog frame
+    subprocess.run(["adb", "shell", "input", "keyevent", "66"], check=False)
+    subprocess.run(["adb", "shell", "input", "keyevent", "4"], check=False)
 
     yield driver
 
