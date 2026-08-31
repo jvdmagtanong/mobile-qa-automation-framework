@@ -59,17 +59,16 @@ echo "Checking Appium server..."
 curl -sf "http://127.0.0.1:4723/status"
 echo "Appium server is ready."
 
-echo "===== Installing test APK safely ====="
-# Wait an extra moment to ensure Package Manager service isn't busy
-sleep 5
-adb install -r -g --no-streaming "$APK_PATH"
-
 echo "===== Pre-installing Appium Settings Helper ====="
 # Find and pre-install the settings APK provided by the driver
 SETTINGS_APK=$(find /home/runner/.appium -name "settings_apk-debug.apk" | head -n 1)
 if [ -n "$SETTINGS_APK" ]; then
   adb install -r -g "$SETTINGS_APK" || true
 fi
+
+echo "===== Pre-clearing App State ====="
+adb shell am force-stop com.saucelabs.mydemoapp.android || true
+sleep 2
 
 echo "===== Running mobile test ====="
 pytest tests/mobile/authentication/test_login_successful.py -v --alluredir=test-reports/allure-results || true

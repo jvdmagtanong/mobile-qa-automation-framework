@@ -36,19 +36,19 @@ def driver():
             "appium:deviceName": DEVICE_NAME,
             "appium:udid": DEVICE_UDID,
             "appium:appPackage": package_name,
+            # Explicitly define the launch activity
+            "appium:appActivity": f"{package_name}.view.activities.MainActivity",
             "appium:appWaitActivity": f"{package_name}.view.activities.MainActivity",
+            # Force launch app and bring to foreground
+            "appium:forceAppLaunch": True,
+            "appium:noReset": False,
+            "appium:fullReset": False,
             "appium:ensureWebviewsHavePages": True,
             "appium:nativeWebScreenshot": True,
             "appium:newCommandTimeout": 3600,
             "appium:disableWindowAnimation": True,
             "appium:autoGrantPermissions": True,
             "appium:autoAcceptAlerts": True,
-            # Force UiAutomator2 to ignore/dismiss System UI ANR dialogs automatically
-            "appium:userWaitForDevice": False,
-            "appium:flags": "--skip-unsupported-env-checks",
-            # Skip background helper installation during session creation
-            "appium:skipServerInstallation": True,
-            "appium:skipDeviceInitialization": True,
             "appium:uiautomator2ServerInstallTimeout": 120000,
             "appium:uiautomator2ServerLaunchTimeout": 120000,
             "appium:appWaitDuration": 60000,
