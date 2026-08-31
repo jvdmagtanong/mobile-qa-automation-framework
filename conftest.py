@@ -33,7 +33,7 @@ def driver():
             "appium:uiautomator2ServerInstallTimeout": 120000,
             "appium:uiautomator2ServerLaunchTimeout": 120000,
             "appium:appWaitDuration": 60000,
-            "appium:adbExecTimeout": 120000,
+            "appium:adbExecTimeout": 480000,
         }
     )
 
