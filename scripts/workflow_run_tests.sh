@@ -72,7 +72,7 @@ if [ -n "$SETTINGS_APK" ]; then
 fi
 
 echo "===== Running mobile test ====="
-pytest tests/mobile/authentication/test_login_successful.py -v --alluredir=test-reports/allure-results || true
+pytest tests/mobile/authentication -v --alluredir=test-reports/allure-results || true
 
 TEST_EXIT_CODE=$?
 
