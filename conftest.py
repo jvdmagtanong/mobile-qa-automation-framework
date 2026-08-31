@@ -1,4 +1,4 @@
-import subprocess, pytest, allure, time
+import pytest, allure, time
 from pathlib import Path
 from appium import webdriver
 from appium.options.android import UiAutomator2Options
@@ -11,7 +11,6 @@ def driver():
     app_path = project_root / APK_PATH
     package_name = "com.saucelabs.mydemoapp.android"
 
-    
     options = UiAutomator2Options()
     options.load_capabilities(
         {
@@ -19,7 +18,6 @@ def driver():
             "appium:automationName": "UiAutomator2",
             "appium:deviceName": DEVICE_NAME,
             "appium:udid": DEVICE_UDID,
-            # Let Appium handle installation directly:
             "appium:app": str(app_path),
             "appium:appPackage": package_name,
             "appium:appActivity": f"{package_name}.view.activities.SplashActivity",
@@ -31,6 +29,9 @@ def driver():
             "appium:autoGrantPermissions": True,
             "appium:autoAcceptAlerts": True,
             "appium:ignoreHiddenApiPolicyError": True,
+            # BYPASS SETTINGS APP TIMEOUT
+            "appium:skipAppiumServerInstall": True,
+            "appium:skipUnlock": True,
             "appium:uiautomator2ServerInstallTimeout": 120000,
             "appium:uiautomator2ServerLaunchTimeout": 120000,
             "appium:appWaitDuration": 60000,
@@ -48,7 +49,6 @@ def driver():
         options=options,
     )
 
-    # Re-enforce explicitly on active session
     driver.update_settings(
         {
             "waitForIdleTimeout": 0,
@@ -57,7 +57,6 @@ def driver():
         }
     )
 
-    # Pause briefly for Splash -> Main Activity transition without keyevent hacks
     time.sleep(3)
 
     yield driver

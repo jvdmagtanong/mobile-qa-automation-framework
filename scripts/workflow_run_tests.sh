@@ -26,6 +26,9 @@ adb shell settings put global window_animation_scale 0.0 || true
 adb shell settings put global transition_animation_scale 0.0 || true
 adb shell settings put global animator_duration_scale 0.0 || true
 
+# Grant background permission to prevent settings app blockages
+adb shell pm grant io.appium.settings android.permission.SET_ANIMATION_SCALE || true
+
 echo "===== Installing Appium & Driver ====="
 npm install -g appium@3
 appium driver install uiautomator2
