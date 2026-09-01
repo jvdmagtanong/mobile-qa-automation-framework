@@ -32,7 +32,6 @@ def driver():
             "appium:autoAcceptAlerts": True,
             "appium:ignoreHiddenApiPolicyError": True,
             "appium:skipUnlock": True,
-            "appium:skipServerInstallation": True,
             "appium:noReset": True,
             "appium:androidInstallTimeout": 180000,
             "appium:uiautomator2ServerInstallTimeout": 180000,
@@ -53,16 +52,13 @@ def driver():
         }
     )
 
-    # CLEAR APP CACHE & CART STATE SAFELY
     try:
         driver.terminate_app(package_name)
         time.sleep(1)
         driver.activate_app(package_name)
-        time.sleep(3)
+        time.sleep(2)
     except Exception:
         pass
-
-    time.sleep(3)
 
     yield driver
 
