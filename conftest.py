@@ -31,7 +31,8 @@ def driver():
             "appium:autoAcceptAlerts": True,
             "appium:ignoreHiddenApiPolicyError": True,
             "appium:skipUnlock": True,
-            "appium:noReset": True,
+            "appium:noReset": False,  # Ensures app state/cache is reset cleanly upon session creation
+            "appium:fullReset": False, # Prevents uninstallation/reinstallation overhead
             "appium:androidInstallTimeout": 180000,
             "appium:uiautomator2ServerInstallTimeout": 180000,
             "appium:uiautomator2ServerLaunchTimeout": 180000,
@@ -51,8 +52,14 @@ def driver():
         }
     )
 
-    # Let the initial frame render before Pytest interacts with elements
-    time.sleep(3)
+    # Cleanly terminate and relaunch the app if you want a guaranteed fresh start per test fixture
+    try:
+        driver.terminate_app(package_name)
+        time.sleep(1)
+        driver.activate_app(package_name)
+        time.sleep(2)
+    except Exception:
+        pass
 
     yield driver
 
