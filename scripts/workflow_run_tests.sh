@@ -15,6 +15,10 @@ done
 
 sleep 10
 
+echo "===== Cleaning Up Old UiAutomator2 Server Binaries ====="
+adb uninstall io.appium.uiautomator2.server || true
+adb uninstall io.appium.uiautomator2.server.test || true
+
 echo "===== Disabling System Animations ====="
 adb shell settings put global hide_error_dialogs 1 || true
 adb shell settings put global window_animation_scale 0.0 || true
