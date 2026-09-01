@@ -32,11 +32,13 @@ def driver():
             "appium:ignoreHiddenApiPolicyError": True,
             "appium:skipUnlock": True,
             "appium:noReset": False,  # Ensures app state/cache is reset cleanly upon session creation
-            "appium:fullReset": False, # Prevents uninstallation/reinstallation overhead
+            "appium:fullReset": False,  # Prevents uninstallation/reinstallation overhead
             "appium:androidInstallTimeout": 180000,
             "appium:uiautomator2ServerInstallTimeout": 180000,
-            "appium:uiautomator2ServerLaunchTimeout": 180000,
-            "appium:adbExecTimeout": 180000,
+            "appium:uiautomator2ServerLaunchTimeout": 240000,
+            "appium:adbExecTimeout": 240000,
+            "appium:simpleIsVisibleCheck": True,
+            "appium:ignoreUnimportantViews": True,
         }
     )
 
@@ -49,6 +51,7 @@ def driver():
         {
             "waitForIdleTimeout": 0,
             "actionAcknowledgmentTimeout": 0,
+            "allowInvisibleElements": True,
         }
     )
 
