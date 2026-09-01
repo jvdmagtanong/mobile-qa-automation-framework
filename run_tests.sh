@@ -37,7 +37,7 @@ echo ""
 
 set +e
 
-pytest tests/mobile/authentication/test_login*.py --alluredir="$ALLURE_RESULTS_DIR"
+pytest tests/ --alluredir="$ALLURE_RESULTS_DIR"
 
 TEST_EXIT_CODE=$?
 
