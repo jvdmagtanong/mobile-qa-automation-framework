@@ -13,7 +13,7 @@ env:
   APK_PATH: apps/mda-2.2.0-25.apk
   USERNAME: ${{ vars.USERNAME }}
   PASSWORD: ${{ secrets.PASSWORD }}
-  DEVICE_NAME: pixel_3
+  DEVICE_NAME: pixel_4
   DEVICE_UDID: emulator-5554
   APPIUM_HOST: 127.0.0.1
   APPIUM_PORT: 4723
@@ -60,19 +60,18 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Start Android emulator
+      - name: Run Android Emulator and Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 29
-          target: google_apis
+          target: default
           arch: x86_64
-          profile: pixel_3
-          ram-size: 2048M
-          heap-size: 512M
+          profile: Pixel_4
+          cores: 2
+          ram-size: 3072M
           disable-animations: true
-          emulator-options: -no-window -no-snapshot -noaudio -no-boot-anim -gpu swiftshader_indirect -no-metrics
-          emulator-boot-timeout: 600
-          script: bash ./scripts/workflow_run_tests.sh
+          emulator-options: -no-window -gpu swiftshader_indirect -no-audio -no-boot-anim -camera-back none
+          script: bash scripts/workflow_run_tests.sh
       
       - name: Install Allure
         if: always()
