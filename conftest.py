@@ -38,7 +38,7 @@ def driver():
             "appium:uiautomator2ServerLaunchTimeout": 240000,
             "appium:adbExecTimeout": 240000,
             "appium:simpleIsVisibleCheck": True,
-            "appium:ignoreUnimportantViews": True,
+            "appium:ignoreUnimportantViews": False,
         }
     )
 
