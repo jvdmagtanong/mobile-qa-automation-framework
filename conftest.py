@@ -20,8 +20,8 @@ def driver():
             "appium:udid": DEVICE_UDID,
             "appium:app": str(app_path),
             "appium:appPackage": package_name,
-            "appium:appActivity": f"{package_name}.view.activities.SplashActivity",
-            "appium:appWaitActivity": f"{package_name}.view.activities.SplashActivity,{package_name}.view.activities.MainActivity",
+            # USE WILDCARDS TO MATCH ANY LAUNCH ACTIVITY
+            "appium:appWaitActivity": "*",
             "appium:appWaitPackage": package_name,
             "appium:appWaitDuration": 60000,
             "appium:ensureWebviewsHavePages": True,
