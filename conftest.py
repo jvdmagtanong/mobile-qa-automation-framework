@@ -52,6 +52,9 @@ def driver():
         }
     )
 
+    # Allow app splash transition to complete cleanly
+    time.sleep(3)
+
     yield driver
 
     driver.quit()
