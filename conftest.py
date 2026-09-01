@@ -20,7 +20,6 @@ def driver():
             "appium:udid": DEVICE_UDID,
             "appium:app": str(app_path),
             "appium:appPackage": package_name,
-            # USE WILDCARDS TO MATCH ANY LAUNCH ACTIVITY
             "appium:appWaitActivity": "*",
             "appium:appWaitPackage": package_name,
             "appium:appWaitDuration": 60000,
@@ -52,13 +51,8 @@ def driver():
         }
     )
 
-    try:
-        driver.terminate_app(package_name)
-        time.sleep(1)
-        driver.activate_app(package_name)
-        time.sleep(2)
-    except Exception:
-        pass
+    # Let the initial frame render before Pytest interacts with elements
+    time.sleep(3)
 
     yield driver
 
