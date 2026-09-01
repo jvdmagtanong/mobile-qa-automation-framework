@@ -52,15 +52,6 @@ def driver():
         }
     )
 
-    # Cleanly terminate and relaunch the app if you want a guaranteed fresh start per test fixture
-    try:
-        driver.terminate_app(package_name)
-        time.sleep(1)
-        driver.activate_app(package_name)
-        time.sleep(2)
-    except Exception:
-        pass
-
     yield driver
 
     driver.quit()
