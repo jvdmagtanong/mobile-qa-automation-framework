@@ -31,14 +31,14 @@ def driver():
             "appium:autoAcceptAlerts": True,
             "appium:ignoreHiddenApiPolicyError": True,
             "appium:skipUnlock": True,
-            "appium:noReset": False,  # Ensures app state/cache is reset cleanly upon session creation
-            "appium:fullReset": False,  # Prevents uninstallation/reinstallation overhead
+            "appium:noReset": True,  # Keep True to avoid accessibility tree locks from pm clear
+            "appium:fullReset": False,
             "appium:androidInstallTimeout": 180000,
             "appium:uiautomator2ServerInstallTimeout": 180000,
             "appium:uiautomator2ServerLaunchTimeout": 240000,
             "appium:adbExecTimeout": 240000,
-            "appium:simpleIsVisibleCheck": True,
-            "appium:ignoreUnimportantViews": True,
+            "appium:simpleIsVisibleCheck": False,  # Kept False to ensure exact element bounds
+            "appium:ignoreUnimportantViews": False,
         }
     )
 
@@ -51,16 +51,27 @@ def driver():
         {
             "waitForIdleTimeout": 0,
             "actionAcknowledgmentTimeout": 0,
-            "allowInvisibleElements": True,
         }
     )
 
-    # Allow app splash transition to complete cleanly
-    time.sleep(5)
+    time.sleep(3)
 
     yield driver
 
     driver.quit()
+
+
+@pytest.fixture(autouse=True)
+def reset_app_state(driver):
+    """Cleanly relaunches the app before each test without calling PM clear."""
+    package_name = "com.saucelabs.mydemoapp.android"
+    try:
+        driver.terminate_app(package_name)
+        time.sleep(1)
+        driver.activate_app(package_name)
+        time.sleep(2)
+    except Exception:
+        pass
 
 
 @pytest.hookimpl(hookwrapper=True)
