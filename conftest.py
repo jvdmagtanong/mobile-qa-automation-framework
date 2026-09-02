@@ -56,7 +56,7 @@ def driver():
 
     # Force launch/activate app explicitly upon session creation with noReset: True
     driver.activate_app(package_name)
-    time.sleep(3)
+    time.sleep(5)
 
     yield driver
 

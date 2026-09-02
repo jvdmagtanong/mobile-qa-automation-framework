@@ -12,7 +12,7 @@ class BasePage:
 
     def scroll_to_element_with_identifier(self, locator, identifier):
         formatted_locator = (locator[0], locator[1].format(identifier))
-        self.find_element(formatted_locator)
+        self.wait_for_element_visible(formatted_locator)
 
     def scroll_element(self, scrollable_element, direction="down", percent=0.4):
         self.driver.execute_script(
@@ -21,7 +21,7 @@ class BasePage:
                 "elementId": scrollable_element.id,
                 "direction": direction,
                 "percent": percent,
-            }
+            },
         )
 
     def click_element(self, locator):
@@ -40,7 +40,7 @@ class BasePage:
         self._swipe_element(locator, direction="right", percent=percent)
 
     def _swipe_element(self, locator, direction="left", percent=0.8):
-        element = self.find_element(locator)
+        element = self.wait_for_element_visible(locator)
         self.driver.execute_script(
             "mobile: swipeGesture",
             {
@@ -60,10 +60,12 @@ class BasePage:
 
     def wait_for_element_visible(self, locator, timeout=10):
         return WebDriverWait(self.driver, timeout).until(
-            EC.visibility_of_element_located(locator)
+            EC.visibility_of_element_located(locator),
+            message=f"Element was not visible within {timeout} seconds: {locator}",
         )
 
     def wait_for_element_clickable(self, locator, timeout=10):
         return WebDriverWait(self.driver, timeout).until(
-            EC.element_to_be_clickable(locator)
+            EC.element_to_be_clickable(locator),
+            message=f"Element was not clickable within {timeout} seconds: {locator}",
         )
