@@ -32,6 +32,8 @@ def test_add_diff_items_diff_qty_to_cart(driver, products):
     with allure.step("Verify Log Out item is displayed in the Menu"):
         header_page.open_menu()
         header_page.verify_logout_menu_item_is_displayed()
+
+    with allure.step("Close the menu"):
         header_page.dismiss_menu()
     
     product_list = products["data"]
