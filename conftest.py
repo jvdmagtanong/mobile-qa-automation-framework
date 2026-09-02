@@ -31,13 +31,13 @@ def driver():
             "appium:autoAcceptAlerts": True,
             "appium:ignoreHiddenApiPolicyError": True,
             "appium:skipUnlock": True,
-            "appium:noReset": True,  # Keep True to avoid accessibility tree locks from pm clear
+            "appium:noReset": True,  # Keep True to prevent pm clear accessibility freezes
             "appium:fullReset": False,
             "appium:androidInstallTimeout": 180000,
             "appium:uiautomator2ServerInstallTimeout": 180000,
             "appium:uiautomator2ServerLaunchTimeout": 240000,
             "appium:adbExecTimeout": 240000,
-            "appium:simpleIsVisibleCheck": False,  # Kept False to ensure exact element bounds
+            "appium:simpleIsVisibleCheck": False,
             "appium:ignoreUnimportantViews": False,
         }
     )
@@ -58,20 +58,13 @@ def driver():
 
     yield driver
 
-    driver.quit()
-
-
-@pytest.fixture(autouse=True)
-def reset_app_state(driver):
-    """Cleanly relaunches the app before each test without calling PM clear."""
-    package_name = "com.saucelabs.mydemoapp.android"
+    # Explicitly force-stop the app process before closing the Appium session
     try:
         driver.terminate_app(package_name)
-        time.sleep(1)
-        driver.activate_app(package_name)
-        time.sleep(2)
     except Exception:
         pass
+
+    driver.quit()
 
 
 @pytest.hookimpl(hookwrapper=True)
