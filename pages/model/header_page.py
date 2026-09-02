@@ -16,7 +16,7 @@ class HeaderPage(BasePage):
         self.click_element(HeaderLocator.MENU_BUTTON)
 
     def dismiss_menu(self):
-        self.swipe_element_left(HeaderLocator.MENU_LIST_CONTAINER)
+        self.swipe_element_left(HeaderLocator.MENU_LIST_CONTAINER, percent=0.5)
         self.wait_for_element_visible(HeaderLocator.MENU_BUTTON)
 
     def tap_login_menu_item(self):
