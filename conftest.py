@@ -31,7 +31,7 @@ def driver():
             "appium:autoAcceptAlerts": True,
             "appium:ignoreHiddenApiPolicyError": True,
             "appium:skipUnlock": True,
-            "appium:noReset": True,  # Keep True to prevent pm clear accessibility freezes
+            "appium:noReset": True,  # Prevents pm clear accessibility tree locks
             "appium:fullReset": False,
             "appium:androidInstallTimeout": 180000,
             "appium:uiautomator2ServerInstallTimeout": 180000,
@@ -54,11 +54,13 @@ def driver():
         }
     )
 
+    # Force launch/activate app explicitly upon session creation with noReset: True
+    driver.activate_app(package_name)
     time.sleep(3)
 
     yield driver
 
-    # Explicitly force-stop the app process before closing the Appium session
+    # Force-stop the app process before closing session
     try:
         driver.terminate_app(package_name)
     except Exception:
