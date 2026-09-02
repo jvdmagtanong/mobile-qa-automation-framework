@@ -2,6 +2,7 @@ import time, pytest, allure
 from pathlib import Path
 from appium import webdriver
 from appium.options.android import UiAutomator2Options
+from selenium.webdriver.support.ui import WebDriverWait
 from utils.config import APPIUM_HOST, APPIUM_PORT, APK_PATH, DEVICE_NAME, DEVICE_UDID
 
 
@@ -61,6 +62,11 @@ def driver():
     yield driver
 
     driver.quit()
+
+
+@pytest.fixture
+def wait(driver):
+    return WebDriverWait(driver, 30)
 
 
 @pytest.hookimpl(hookwrapper=True)
