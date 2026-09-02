@@ -9,7 +9,7 @@ class HeaderPage(BasePage):
         self.wait_for_app_logo()
 
     def wait_for_app_logo(self):
-        self.wait_for_element_visible(HeaderLocator.APP_LOGO_AND_NAME)
+        self.wait_for_element_visible(HeaderLocator.APP_LOGO_AND_NAME, timeout=30)
 
     def open_menu(self):
         self.wait_for_element_visible(HeaderLocator.MENU_BUTTON)

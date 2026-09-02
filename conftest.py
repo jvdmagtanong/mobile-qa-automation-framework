@@ -50,6 +50,7 @@ def driver():
     driver.update_settings(
         {
             "waitForIdleTimeout": 0,
+            "waitForSelectorTimeout": 0,
             "actionAcknowledgmentTimeout": 0,
         }
     )
