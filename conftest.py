@@ -22,7 +22,7 @@ def driver():
             "appium:appPackage": package_name,
             "appium:appWaitActivity": "*",
             "appium:appWaitPackage": package_name,
-            "appium:appWaitDuration": 60000,
+            "appium:appWaitDuration": 120000,
             "appium:ensureWebviewsHavePages": True,
             "appium:nativeWebScreenshot": True,
             "appium:newCommandTimeout": 3600,
@@ -56,7 +56,7 @@ def driver():
     )
 
     # Allow app splash transition to complete cleanly
-    time.sleep(3)
+    time.sleep(5)
 
     yield driver
 

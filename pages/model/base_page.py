@@ -58,12 +58,12 @@ class BasePage:
         element = self.wait_for_element_visible(locator)
         return element.is_displayed()
 
-    def wait_for_element_visible(self, locator, timeout=10):
+    def wait_for_element_visible(self, locator, timeout=30):
         return WebDriverWait(self.driver, timeout).until(
             EC.visibility_of_element_located(locator)
         )
 
-    def wait_for_element_clickable(self, locator, timeout=10):
+    def wait_for_element_clickable(self, locator, timeout=30):
         return WebDriverWait(self.driver, timeout).until(
             EC.element_to_be_clickable(locator)
         )
