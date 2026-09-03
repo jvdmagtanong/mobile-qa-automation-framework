@@ -35,6 +35,10 @@ appium --address 127.0.0.1 --port 4723 --log-level debug > /tmp/appium.log 2>&1 
 sleep 5
 curl -sf "http://127.0.0.1:4723/status"
 
+mkdir -p test-reports
+
+echo "===== Starting Memory Monitor ====="
+
 (
   while true; do
     echo "===== $(date) ====="
@@ -47,7 +51,7 @@ MEMORY_MONITOR_PID=$!
 
 echo "===== Running Mobile Test ====="
 set +e
-pytest tests/mobile/cart/logged_out_user -v --alluredir=test-reports/allure-results
+pytest tests/mobile/cart/logged_out_user/test_add_multiple_qty_to_cart.py -v --alluredir=test-reports/allure-results
 TEST_EXIT_CODE=$?
 set -e
 
@@ -55,6 +59,7 @@ kill "$MEMORY_MONITOR_PID" || true
 
 echo "===== Appium log ====="
 cat /tmp/appium.log || true
+cp /tmp/appium.log test-reports/appium.log || true
 
 echo "===== Post-Test UI State ====="
 

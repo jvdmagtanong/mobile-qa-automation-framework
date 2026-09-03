@@ -82,6 +82,8 @@ jobs:
             test-reports/accessibility.txt
             test-reports/ui-errors.txt
             test-reports/logcat.txt
+            test-reports/memory.log
+            test-reports/appium.log
           if-no-files-found: warn
       
       - name: Install Allure
