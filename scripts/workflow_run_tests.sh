@@ -37,7 +37,7 @@ curl -sf "http://127.0.0.1:4723/status"
 
 echo "===== Running Mobile Test ====="
 set +e
-pytest tests/mobile/cart/logged_in_user/ -v --alluredir=test-reports/allure-results
+pytest tests/mobile/cart/ -v --alluredir=test-reports/allure-results
 TEST_EXIT_CODE=$?
 set -e
 
