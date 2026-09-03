@@ -35,11 +35,32 @@ appium --address 127.0.0.1 --port 4723 --log-level debug > /tmp/appium.log 2>&1 
 sleep 5
 curl -sf "http://127.0.0.1:4723/status"
 
+echo "===== Emulator Architecture ====="
+adb shell getprop ro.product.cpu.abi
+adb shell getprop ro.product.cpu.abilist
+adb shell getprop ro.product.device
+adb shell getprop ro.product.name
+adb shell getprop ro.kernel.qemu.avd_name
+
+echo "===== Emulator Graphics ====="
+adb shell getprop ro.kernel.qemu.uirenderer
+adb shell getprop debug.hwui.renderer
+
+echo "===== Emulator Memory ====="
+adb shell cat /proc/meminfo | head -10
+adb logcat -c
+
 echo "===== Running Mobile Test ====="
 set +e
 pytest tests/mobile/cart/logged_in_user/ -v --alluredir=test-reports/allure-results
 TEST_EXIT_CODE=$?
 set -e
+
+echo "===== Android ANR / Crash Evidence ====="
+adb logcat -d | grep -iE "ANR|systemui|not responding|FATAL EXCEPTION|AndroidRuntime" || true
+adb logcat -d > test-reports/logcat.txt
+grep -iE "ANR|systemui|not responding|FATAL EXCEPTION" test-reports/logcat.txt || true
+
 
 echo "===== Appium log ====="
 cat /tmp/appium.log || true
