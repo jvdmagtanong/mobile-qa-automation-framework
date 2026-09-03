@@ -9,15 +9,15 @@ class HeaderPage(BasePage):
         self.wait_for_app_logo()
 
     def wait_for_app_logo(self):
-        self.wait_for_element_visible(HeaderLocator.APP_LOGO_AND_NAME, timeout=30)
+        self.wait_for_element_visible(HeaderLocator.APP_LOGO_AND_NAME)
 
     def open_menu(self):
-        self.wait_for_element_visible(HeaderLocator.MENU_BUTTON)
+        self.wait_for_element_clickable(HeaderLocator.MENU_BUTTON)
         self.click_element(HeaderLocator.MENU_BUTTON)
 
     def dismiss_menu(self):
-        self.swipe_element_left(HeaderLocator.MENU_LIST_CONTAINER, percent=0.5)
-        self.wait_for_element_visible(HeaderLocator.MENU_BUTTON)
+        self.swipe_element_left(HeaderLocator.MENU_LIST_CONTAINER)
+        self.wait_for_element_not_visible(HeaderLocator.MENU_LIST_CONTAINER)
 
     def tap_login_menu_item(self):
         self.wait_for_element_visible(HeaderLocator.LOGIN_MENU_ITEM)

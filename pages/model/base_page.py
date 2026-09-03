@@ -69,3 +69,9 @@ class BasePage:
             EC.element_to_be_clickable(locator),
             message=f"Element was not clickable within {timeout} seconds: {locator}",
         )
+
+    def wait_for_element_not_visible(self, locator, timeout=10):
+        return WebDriverWait(self.driver, timeout).until(
+            EC.invisibility_of_element_located(locator),
+            message=f"Element was still visible after {timeout} seconds: {locator}",
+        )
