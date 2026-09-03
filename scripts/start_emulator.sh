@@ -1,6 +1,13 @@
 #!/bin/bash
 
-AVD_NAME="${AVD_NAME:-Pixel_10}"
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+# Load environment variables from .env
+if [ -f "$PROJECT_ROOT/.env" ]; then
+    export $(grep -v '^#' "$PROJECT_ROOT/.env" | xargs)
+fi
+
+AVD_NAME="${DEVICE_NAME:-Pixel_10}"
 
 echo "Checking if Android emulator is already running..."
 
