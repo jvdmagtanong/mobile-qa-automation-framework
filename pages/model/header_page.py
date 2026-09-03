@@ -12,7 +12,7 @@ class HeaderPage(BasePage):
         self.wait_for_element_visible(HeaderLocator.APP_LOGO_AND_NAME)
 
     def open_menu(self):
-        self.wait_for_element_clickable(HeaderLocator.MENU_BUTTON)
+        self.wait_for_element_visible(HeaderLocator.MENU_BUTTON)
         self.click_element(HeaderLocator.MENU_BUTTON)
 
     def dismiss_menu(self):
