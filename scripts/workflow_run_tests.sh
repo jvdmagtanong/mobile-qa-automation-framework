@@ -35,11 +35,23 @@ appium --address 127.0.0.1 --port 4723 --log-level debug > /tmp/appium.log 2>&1 
 sleep 5
 curl -sf "http://127.0.0.1:4723/status"
 
+(
+  while true; do
+    echo "===== $(date) ====="
+    adb shell cat /proc/meminfo | grep -E "MemTotal|MemAvailable|MemFree|SwapFree"
+    sleep 10
+  done
+) > test-reports/memory.log 2>&1 &
+
+MEMORY_MONITOR_PID=$!
+
 echo "===== Running Mobile Test ====="
 set +e
-pytest tests/mobile/cart/ -v --alluredir=test-reports/allure-results
+pytest tests/mobile/cart/logged_out_user -v --alluredir=test-reports/allure-results
 TEST_EXIT_CODE=$?
 set -e
+
+kill "$MEMORY_MONITOR_PID" || true
 
 echo "===== Appium log ====="
 cat /tmp/appium.log || true

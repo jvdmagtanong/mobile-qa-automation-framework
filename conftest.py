@@ -47,13 +47,13 @@ def driver():
         options=options,
     )
 
-    # driver.update_settings(
-    #     {
-    #         "waitForIdleTimeout": 0,
-    #         "waitForSelectorTimeout": 0,
-    #         "actionAcknowledgmentTimeout": 0,
-    #     }
-    # )
+    driver.update_settings(
+        {
+            "waitForIdleTimeout": 0,
+            "waitForSelectorTimeout": 0,
+            "actionAcknowledgmentTimeout": 0,
+        }
+    )
 
     # Force launch/activate app explicitly upon session creation with noReset: True
     driver.activate_app(package_name)
