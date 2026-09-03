@@ -57,17 +57,17 @@ def driver():
 
     # Force launch/activate app explicitly upon session creation with noReset: True
     driver.activate_app(package_name)
-    time.sleep(5)
+    time.sleep(3)
 
-    print("===========BEFORE TEST EXECUTION===========")
-    print(f"Current package: {driver.current_package}")
-    print(f"Current activity: {driver.current_activity}")
+    # print("===========BEFORE TEST EXECUTION===========")
+    # print(f"Current package: {driver.current_package}")
+    # print(f"Current activity: {driver.current_activity}")
 
     yield driver
 
-    print("===========AFTER TEST EXECUTION===========")
-    print(f"Current package: {driver.current_package}")
-    print(f"Current activity: {driver.current_activity}")
+    # print("===========AFTER TEST EXECUTION===========")
+    # print(f"Current package: {driver.current_package}")
+    # print(f"Current activity: {driver.current_activity}")
 
     # Force-stop the app process before closing session
     try:

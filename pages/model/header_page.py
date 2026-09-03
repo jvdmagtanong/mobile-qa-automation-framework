@@ -1,3 +1,4 @@
+from selenium.common import TimeoutException
 from pages.model.base_page import BasePage
 from pages.locator.header_locator import HeaderLocator
 
@@ -16,8 +17,12 @@ class HeaderPage(BasePage):
         self.click_element(HeaderLocator.MENU_BUTTON)
 
     def dismiss_menu(self):
-        self.swipe_element_left(HeaderLocator.MENU_LIST_CONTAINER)
-        self.wait_for_element_not_visible(HeaderLocator.MENU_LIST_CONTAINER)
+        try:
+            self.swipe_element_left(HeaderLocator.MENU_LIST_CONTAINER)
+            self.wait_for_element_not_visible(HeaderLocator.MENU_LIST_CONTAINER)
+        except TimeoutException:
+            self.tap_cart_icon()
+            self.wait_for_element_not_visible(HeaderLocator.MENU_LIST_CONTAINER)
 
     def tap_login_menu_item(self):
         self.wait_for_element_visible(HeaderLocator.LOGIN_MENU_ITEM)
