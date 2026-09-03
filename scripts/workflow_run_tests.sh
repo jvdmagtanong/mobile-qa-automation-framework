@@ -51,7 +51,7 @@ MEMORY_MONITOR_PID=$!
 
 echo "===== Running Mobile Test ====="
 set +e
-pytest tests/mobile/cart/logged_out_user/test_add_multiple_qty_to_cart.py -v --alluredir=test-reports/allure-results
+pytest tests/mobile/cart/logged_out_user -v --alluredir=test-reports/allure-results
 TEST_EXIT_CODE=$?
 set -e
 
