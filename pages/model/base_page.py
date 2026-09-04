@@ -13,7 +13,7 @@ class BasePage:
 
     def scroll_to_element_with_identifier(self, locator, identifier):
         formatted_locator = (locator[0], locator[1].format(identifier))
-        self.wait_for_element_visible(formatted_locator)
+        self.find_element(formatted_locator)
 
     def scroll_element(self, scrollable_element, direction="down", percent=0.4):
         self.driver.execute_script(
@@ -56,7 +56,7 @@ class BasePage:
         return element.text
 
     def is_element_displayed(self, locator):
-        element = self.find_element(locator)
+        element = self.wait_for_element_visible(locator)
         return element.is_displayed()
 
     def wait_for_element_visible(self, locator, timeout=10):

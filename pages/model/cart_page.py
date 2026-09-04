@@ -38,9 +38,9 @@ class CartPage(BasePage):
         cart_container = self.find_element(CartLocator.CART_SCROLLABLE_CONTAINER)
         for _ in range(3):
             try:
-                self.is_element_displayed(locator)
-                break
-            except TimeoutException:
+                element = self.find_element(locator)
+                if element.is_displayed(): break
+            except TimeoutException, NoSuchElementException:
                 self.scroll_element(cart_container, percent=0.5)
 
     def get_item_quantity(self, product_name):
