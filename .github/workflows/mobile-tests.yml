@@ -13,7 +13,7 @@ env:
   APK_PATH: apps/mda-2.2.0-25.apk
   USERNAME: ${{ vars.USERNAME }}
   PASSWORD: ${{ secrets.PASSWORD }}
-  DEVICE_NAME: pixel_4
+  DEVICE_NAME: pixel_2
   DEVICE_UDID: emulator-5554
   APPIUM_HOST: 127.0.0.1
   APPIUM_PORT: 4723
@@ -66,7 +66,7 @@ jobs:
           api-level: 29
           target: default
           arch: x86
-          profile: pixel_4
+          profile: pixel_2
           cores: 4
           ram-size: 4096M
           disable-animations: true

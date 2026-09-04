@@ -12,7 +12,6 @@ class HeaderPage(BasePage):
     def wait_for_app_ready(self):
         self.wait_for_element_clickable(HeaderLocator.MENU_BUTTON)
 
-
     def open_menu(self):
         self.wait_for_element_visible(HeaderLocator.MENU_BUTTON)
         self.click_element(HeaderLocator.MENU_BUTTON)
