@@ -15,6 +15,61 @@ done
 
 sleep 10
 
+mkdir -p test-reports
+
+echo "===== Starting System Resource Monitor ====="
+
+(
+  while true; do
+    echo ""
+    echo "=================================================="
+    echo "===== $(date) ====="
+    echo "=================================================="
+
+    echo "--- Memory ---"
+    adb shell cat /proc/meminfo | grep -E "MemTotal|MemAvailable|MemFree|SwapFree"
+
+    echo "--- CPU ---"
+    adb shell dumpsys cpuinfo | head -25
+
+    echo "--- Load Average ---"
+    adb shell cat /proc/loadavg
+
+    echo "--- System Server ---"
+    adb shell pidof system_server || true
+
+    echo "--- System UI ---"
+    adb shell pidof com.android.systemui || true
+
+    echo "--- App ---"
+    adb shell pidof com.saucelabs.mydemoapp.android || true
+
+    sleep 10
+  done
+) > test-reports/system-monitor.log 2>&1 &
+
+SYSTEM_MONITOR_PID=$!
+
+echo "===== Emulator Health Check ====="
+
+echo "--- Boot Completed ---"
+adb shell getprop sys.boot_completed
+
+echo "--- Current Activity ---"
+adb shell dumpsys activity activities | grep -E "mResumedActivity|mFocusedApp" || true
+
+echo "--- CPU ---"
+adb shell dumpsys cpuinfo | head -25
+
+echo "--- Memory ---"
+adb shell cat /proc/meminfo | grep -E "MemTotal|MemAvailable|MemFree|SwapFree"
+
+echo "--- SystemUI PID ---"
+adb shell pidof com.android.systemui || true
+
+echo "--- System Server PID ---"
+adb shell pidof system_server || true
+
 echo "===== Cleaning Up Old UiAutomator2 Server Binaries ====="
 adb uninstall io.appium.uiautomator2.server || true
 adb uninstall io.appium.uiautomator2.server.test || true
@@ -35,27 +90,13 @@ appium --address 127.0.0.1 --port 4723 --log-level debug > /tmp/appium.log 2>&1 
 sleep 5
 curl -sf "http://127.0.0.1:4723/status"
 
-mkdir -p test-reports
-
-echo "===== Starting Memory Monitor ====="
-
-(
-  while true; do
-    echo "===== $(date) ====="
-    adb shell cat /proc/meminfo | grep -E "MemTotal|MemAvailable|MemFree|SwapFree"
-    sleep 10
-  done
-) > test-reports/memory.log 2>&1 &
-
-MEMORY_MONITOR_PID=$!
-
 echo "===== Running Mobile Test ====="
 set +e
 pytest tests/mobile/cart/logged_out_user -v --alluredir=test-reports/allure-results
 TEST_EXIT_CODE=$?
 set -e
 
-kill "$MEMORY_MONITOR_PID" || true
+kill "$SYSTEM_MONITOR_PID" || true
 
 echo "===== Appium log ====="
 cat /tmp/appium.log || true
