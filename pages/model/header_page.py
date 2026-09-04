@@ -7,10 +7,11 @@ class HeaderPage(BasePage):
 
     def __init__(self, driver):
         super().__init__(driver)
-        self.wait_for_app_logo()
+        self.wait_for_app_ready()
 
-    def wait_for_app_logo(self):
-        self.wait_for_element_visible(HeaderLocator.APP_LOGO_AND_NAME)
+    def wait_for_app_ready(self):
+        self.wait_for_element_clickable(HeaderLocator.MENU_BUTTON)
+
 
     def open_menu(self):
         self.wait_for_element_visible(HeaderLocator.MENU_BUTTON)
