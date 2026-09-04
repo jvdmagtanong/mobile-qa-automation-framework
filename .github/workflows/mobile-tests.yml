@@ -13,7 +13,7 @@ env:
   APK_PATH: apps/mda-2.2.0-25.apk
   USERNAME: ${{ vars.USERNAME }}
   PASSWORD: ${{ secrets.PASSWORD }}
-  DEVICE_NAME: pixel_7_pro
+  DEVICE_NAME: pixel_4
   DEVICE_UDID: emulator-5554
   APPIUM_HOST: 127.0.0.1
   APPIUM_PORT: 4723
@@ -63,10 +63,10 @@ jobs:
       - name: Run Android Emulator and Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 35
-          target: google_apis
-          arch: x86_64
-          profile: pixel_7_pro
+          api-level: 29
+          target: default
+          arch: x86
+          profile: pixel_4
           cores: 4
           ram-size: 4096M
           disable-animations: true
