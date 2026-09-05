@@ -14,9 +14,9 @@ from utils.json_file_reader import read_json_file
     "products", [pytest.param(read_json_file("single_items"), id="single_items")]
 )
 def test_add_multiple_items_to_cart(driver, products):
+    header_page = HeaderPage(driver)
     catalog_page = CatalogPage(driver)
     product_page = ProductPage(driver)
-    header_page = HeaderPage(driver)
 
     item_count: int = 1
     product_list = products["data"]

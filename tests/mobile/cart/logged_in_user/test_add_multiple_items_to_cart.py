@@ -16,11 +16,11 @@ from utils.json_file_reader import read_json_file
     "products", [pytest.param(read_json_file("single_items"), id="single_items")]
 )
 def test_add_multiple_items_to_cart(driver, products):
+    header_page = HeaderPage(driver)
     catalog_page = CatalogPage(driver)
     product_page = ProductPage(driver)
 
     with allure.step("Tap the menu and then select Login"):
-        header_page = HeaderPage(driver)
         header_page.navigate_to_login_screen()
 
     with allure.step("Enter username and password then tap Log In button"):

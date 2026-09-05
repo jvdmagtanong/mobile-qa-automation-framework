@@ -13,6 +13,7 @@ from utils.json_file_reader import get_pytest_param
 @pytest.mark.parametrize("product", get_pytest_param("multiple_item_qty"))
 def test_add_multiple_quantities_to_cart(driver, product):
 
+    header_page = HeaderPage(driver)
     product_name = product["item_name"]
     product_qty = product["qty"]
     with allure.step(f"Select product '{product_name}'."):
@@ -27,7 +28,6 @@ def test_add_multiple_quantities_to_cart(driver, product):
         product_page.tap_add_to_cart()
 
     with allure.step(f"Verify cart icon displays badge number {product_qty}."):
-        header_page = HeaderPage(driver)
         header_page.verify_cart_icon_badge_text_equal_to(str(product_qty))
 
     with allure.step("Tap Cart icon."):

@@ -14,9 +14,9 @@ from utils.json_file_reader import get_pytest_param
 @allure.severity(allure.severity_level.CRITICAL)
 @pytest.mark.parametrize("product", get_pytest_param("single_items"))
 def test_add_single_item_to_cart(driver, product):
+    header_page = HeaderPage(driver)
 
     with allure.step("Tap the menu and then select Login"):
-        header_page = HeaderPage(driver)
         header_page.navigate_to_login_screen()
 
     with allure.step("Enter username and password then tap Log In button"):

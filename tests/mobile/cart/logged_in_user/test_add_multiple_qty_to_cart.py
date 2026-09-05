@@ -15,8 +15,8 @@ from utils.json_file_reader import get_pytest_param
 @pytest.mark.parametrize("product", get_pytest_param("multiple_item_qty"))
 def test_add_multiple_quantities_to_cart(driver, product):
 
+    header_page = HeaderPage(driver)
     with allure.step("Tap the menu and then select Login"):
-        header_page = HeaderPage(driver)
         header_page.navigate_to_login_screen()
 
     with allure.step("Enter username and password then tap Log In button"):

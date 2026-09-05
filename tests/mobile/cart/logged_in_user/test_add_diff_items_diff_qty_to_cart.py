@@ -18,11 +18,11 @@ from utils.json_file_reader import read_json_file
 )
 def test_add_diff_items_diff_qty_to_cart(driver, products):
 
+    header_page = HeaderPage(driver)
     product_page = ProductPage(driver)
     catalog_page = CatalogPage(driver)
 
     with allure.step("Tap the menu and then select Login"):
-        header_page = HeaderPage(driver)
         header_page.navigate_to_login_screen()
 
     with allure.step("Enter username and password then tap Log In button"):

@@ -9,8 +9,8 @@ from utils.config import USERNAME, PASSWORD
 @allure.story("User login")
 @allure.severity(allure.severity_level.CRITICAL)
 def test_successful_login(driver):
+    header_page = HeaderPage(driver)
     with allure.step("Tap the menu and then select Login"):
-        header_page = HeaderPage(driver)
         header_page.navigate_to_login_screen()
 
     with allure.step("Enter username and password then tap Log In button"):

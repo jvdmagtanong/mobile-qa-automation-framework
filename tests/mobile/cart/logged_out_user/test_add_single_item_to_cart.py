@@ -12,6 +12,7 @@ from utils.json_file_reader import get_pytest_param
 @allure.severity(allure.severity_level.CRITICAL)
 @pytest.mark.parametrize("product", get_pytest_param("single_items"))
 def test_add_single_item_to_cart(driver, product):
+    header_page = HeaderPage(driver)
 
     with allure.step(f"Select product '{product}'."):
         catalog_page = CatalogPage(driver)
@@ -22,7 +23,6 @@ def test_add_single_item_to_cart(driver, product):
         product_page.tap_add_to_cart()
 
     with allure.step("Verify cart icon displays badge number 1."):
-        header_page = HeaderPage(driver)
         header_page.verify_cart_icon_badge_text_equal_to("1")
 
     with allure.step("Tap Cart icon."):

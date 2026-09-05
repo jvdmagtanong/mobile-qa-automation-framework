@@ -1,4 +1,4 @@
-from selenium.common import TimeoutException, WebDriverException
+from selenium.common import TimeoutException, WebDriverException, NoSuchElementException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -24,6 +24,17 @@ class BasePage:
                 "percent": percent,
             },
         )
+
+    def scroll_until_visible(self, container_locator, target_locator, max_scrolls=5, percent=0.5):
+        container = self.find_element(container_locator)
+        for _ in range(max_scrolls):
+            try:
+                element = self.find_element(target_locator)
+                if element.is_displayed():
+                    return
+            except TimeoutException, NoSuchElementException:
+                self.scroll_element(container, percent=percent)
+        raise TimeoutException(f"Element {target_locator} not visible after {max_scrolls} scrolls.")
 
     def click_element(self, locator):
         element = self.wait_for_element_clickable(locator)
