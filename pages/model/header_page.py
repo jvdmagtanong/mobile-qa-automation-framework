@@ -1,4 +1,5 @@
-from selenium.common import TimeoutException
+import time
+from selenium.common import TimeoutException, NoSuchElementException, WebDriverException
 from pages.model.base_page import BasePage
 from pages.locator.header_locator import HeaderLocator
 
@@ -9,10 +10,30 @@ class HeaderPage(BasePage):
         super().__init__(driver)
         self.wait_for_app_ready()
 
-    def wait_for_app_ready(self):
-        # CI emulators can take longer for the Android accessibility
-        # hierarchy to become ready after the app launches.
-        self.wait_for_element_clickable(HeaderLocator.MENU_BUTTON, timeout=30)
+    def wait_for_app_ready(self, timeout=30):
+        end_time = time.monotonic() + timeout
+
+        while time.monotonic() < end_time:
+            try:
+                self.find_element(HeaderLocator.MENU_BUTTON)
+                self.wait_for_element_clickable(HeaderLocator.MENU_BUTTON, timeout=30)
+                return
+            except NoSuchElementException:
+                time.sleep(0.5)
+            except WebDriverException as e:
+                if "AccessibilityNodeInfo" in str(e):
+                    time.sleep(0.5)
+                else:
+                    raise
+        raise AssertionError(
+            f"App did not become ready within {timeout} seconds: "
+            f"{HeaderLocator.MENU_BUTTON}"
+        )
+
+    # def wait_for_app_ready(self):
+    #     # CI emulators can take longer for the Android accessibility
+    #     # hierarchy to become ready after the app launches.
+    #     self.wait_for_element_clickable(HeaderLocator.MENU_BUTTON, timeout=30)
 
     def open_menu(self):
         self.wait_for_element_visible(HeaderLocator.MENU_BUTTON)
@@ -49,8 +70,7 @@ class HeaderPage(BasePage):
         assert count == badge_text
 
     def verify_logout_menu_item_is_displayed(self, is_displayed=True):
-        if (is_displayed):
+        if is_displayed:
             assert self.is_logout_menu_item_displayed()
         else:
             assert not self.is_logout_menu_item_displayed()
-
