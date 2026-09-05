@@ -10,6 +10,8 @@ class HeaderPage(BasePage):
         self.wait_for_app_ready()
 
     def wait_for_app_ready(self):
+        # CI emulators can take longer for the Android accessibility
+        # hierarchy to become ready after the app launches.
         self.wait_for_element_clickable(HeaderLocator.MENU_BUTTON, timeout=30)
 
     def open_menu(self):
