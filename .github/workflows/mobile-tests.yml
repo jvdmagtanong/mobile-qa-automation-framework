@@ -63,7 +63,7 @@ jobs:
       - name: Run Android Emulator and Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 29
+          api-level: 30
           target: google_atd            # Optimized test device image (No UI overhead)
           arch: x86_64
           profile: pixel_2

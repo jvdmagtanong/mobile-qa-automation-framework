@@ -11,37 +11,43 @@ def driver():
     app_path = project_root / APK_PATH
     package_name = "com.saucelabs.mydemoapp.android"
 
+    # 1. Standard W3C capabilities do NOT use 'appium:'
+    capabilities = {
+        "platformName": "Android",
+    }
+
+    # 2. Initialize Options class
     options = UiAutomator2Options()
-    options.load_capabilities(
-        {
-            "platformName": "Android",
-            "appium:automationName": "UiAutomator2",
-            "appium:deviceName": DEVICE_NAME,
-            "appium:udid": DEVICE_UDID,
-            "appium:app": str(app_path),
-            "appium:appPackage": package_name,
-            "appium:appWaitActivity": "*",
-            "appium:appWaitPackage": package_name,
-            "appium:appWaitDuration": 120000,
-            "appium:ensureWebviewsHavePages": True,
-            "appium:nativeWebScreenshot": True,
-            "appium:newCommandTimeout": 3600,
-            "appium:disableWindowAnimation": True,
-            "appium:autoGrantPermissions": True,
-            "appium:autoAcceptAlerts": True,
-            "appium:ignoreHiddenApiPolicyError": True,
-            "appium:skipUnlock": True,
-            "appium:noReset": True,  # Prevents pm clear accessibility tree locks
-            "appium:fullReset": False,
-            "appium:androidInstallTimeout": 180000,
-            "appium:uiautomator2ServerInstallTimeout": 180000,
-            "appium:uiautomator2ServerLaunchTimeout": 240000,
-            "appium:androidDeviceReadyTimeout": 60,
-            "appium:adbExecTimeout": 240000,
-            "appium:simpleIsVisibleCheck": False,
-            "appium:ignoreUnimportantViews": False,
-        }
-    )
+    options.load_capabilities(capabilities)
+
+    # 3. Use Appium-Python-Client native setters for your vendor keys.
+    # This eliminates syntax issues and guarantees clean JSON serialization to the server.
+    options.device_name = DEVICE_NAME
+    options.udid = DEVICE_UDID
+    options.app = str(app_path)
+    options.app_package = package_name
+    options.app_wait_activity = "*"
+    options.app_wait_package = package_name
+
+    # Handle your timeout adjustments
+    options.app_wait_duration = 120000
+    options.android_install_timeout = 180000
+    options.uiautomator2_server_install_timeout = 180000
+    options.uiautomator2_server_launch_timeout = 240000
+    options.adb_exec_timeout = 240000
+    options.set_capability("appium:androidDeviceReadyTimeout", 60)
+
+    # Performance and UI optimizations
+    options.disable_window_animation = True
+    options.auto_grant_permissions = True
+    options.ignore_hidden_api_policy_error = True
+    options.skip_unlock = True
+    options.no_reset = True
+    options.full_reset = False
+    options.ensure_webviews_have_pages = True
+    options.native_web_screenshot = True
+    options.new_command_timeout = 3600
+
 
     driver = webdriver.Remote(
         f"http://{APPIUM_HOST}:{APPIUM_PORT}",
@@ -53,6 +59,8 @@ def driver():
             "waitForIdleTimeout": 1000,
             "waitForSelectorTimeout": 0,
             "actionAcknowledgmentTimeout": 0,
+            "simpleIsVisibleCheck": False, 
+            "ignoreUnimportantViews": False, 
         }
     )
 
