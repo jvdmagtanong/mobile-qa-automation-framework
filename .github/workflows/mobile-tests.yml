@@ -20,7 +20,7 @@ env:
 
 jobs:
   mobile-tests:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     environment: 
       name: mobile-test-automation
       url: ${{ steps.deployment.outputs.page_url }}
@@ -60,19 +60,23 @@ jobs:
         with:
           node-version: "22"
 
+      # Enable KVM hardware acceleration on the Ubuntu Host
+      - name: Enable KVM virtualization
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules && sudo udevadm trigger
+
       - name: Run Android Emulator and Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 30
-          target: google_atd            # Stays clean, lightweight, and headless
-          arch: arm64-v8a               # Native Apple Silicon engine execution
-          profile: Nexus 6
-          cores: 2                      # Prevents runner CPU core starvation
-          ram-size: 3072M               # Optimized memory footprint allocation
-          channel: stable               # Guarantees stable image downloads
+          api-level: 30                  # API 30 seamlessly maps to ATD components
+          target: google_atd            # Stripped-down testing target image
+          arch: x86_64                   # Standard x86 architecture for Linux host VMs
+          cores: 2                       # Keeps host execution thread healthy
+          ram-size: 2048M
           disable-animations: true
           force-avd-creation: true
-          emulator-options: >-          # Swapped renderer types to fix Apple Silicon freezes
+          emulator-options: >-
             -no-window 
             -gpu swiftshader_indirect 
             -no-audio 
