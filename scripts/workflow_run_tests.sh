@@ -1,126 +1,52 @@
 #!/usr/bin/env bash
 set -e
 
-echo "===== Waiting for Full Boot Completion ====="
-until [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = "1" ]; do
-  echo "Waiting for sys.boot_completed..."
-  sleep 3
-done
-
-echo "===== Waiting for Package Manager Service to Settle ====="
-until adb shell pm path android > /dev/null 2>&1; do
-  echo "Package Manager service starting up..."
-  sleep 3
-done
-
-sleep 10
-
+echo "===== Ensuring Working Directories Exist ====="
 mkdir -p test-reports
+mkdir -p test-reports/allure-results
 
-# echo "===== Starting System Resource Monitor ====="
-
-# (
-#   while true; do
-#     echo ""
-#     echo "=================================================="
-#     echo "===== $(date) ====="
-#     echo "=================================================="
-
-#     echo "--- Memory ---"
-#     adb shell cat /proc/meminfo | grep -E "MemTotal|MemAvailable|MemFree|SwapFree"
-
-#     echo "--- CPU ---"
-#     adb shell dumpsys cpuinfo | head -25
-
-#     echo "--- Load Average ---"
-#     adb shell cat /proc/loadavg
-
-#     echo "--- System Server ---"
-#     adb shell pidof system_server || true
-
-#     echo "--- System UI ---"
-#     adb shell pidof com.android.systemui || true
-
-#     echo "--- App ---"
-#     adb shell pidof com.saucelabs.mydemoapp.android || true
-
-#     sleep 10
-#   done
-# ) > test-reports/system-monitor.log 2>&1 &
-
-# SYSTEM_MONITOR_PID=$!
-
-echo "===== Emulator Health Check ====="
-
-echo "--- Boot Completed ---"
+echo "===== Emulator Status Check ====="
+echo "--- Boot Status ---"
 adb shell getprop sys.boot_completed
 
-# echo "--- Current Activity ---"
-# adb shell dumpsys activity activities | grep -E "mResumedActivity|mFocusedApp" || true
-
-# echo "--- CPU ---"
-# adb shell dumpsys cpuinfo | head -25
-
-# echo "--- Memory ---"
-# adb shell cat /proc/meminfo | grep -E "MemTotal|MemAvailable|MemFree|SwapFree"
-
-echo "--- SystemUI PID ---"
-adb shell pidof com.android.systemui || true
-
-echo "--- System Server PID ---"
-adb shell pidof system_server || true
-
-echo "===== Disabling System Animations ====="
-# adb shell settings put global hide_error_dialogs 1 || true
+echo "===== Optimizing UI System Configuration ====="
+# Forces OS alerts/crashes to stay quiet so they don't block Appium's driver layers
+adb shell settings put global hide_error_dialogs 1 || true
 adb shell settings put global window_animation_scale 0.0 || true
 adb shell settings put global transition_animation_scale 0.0 || true
 adb shell settings put global animator_duration_scale 0.0 || true
 
-echo "===== Installing Appium & Driver ====="
-npm install -g appium@3
+echo "===== Installing Appium Ecosystem ====="
+# Use appium@next or specify appium@2 for stable production ecosystems
+npm install -g appium@2
 appium driver install uiautomator2
 
-echo "===== Starting Appium server ====="
+echo "===== Initializing Appium Server Structure ====="
 appium --address 127.0.0.1 --port 4723 --log-level debug > /tmp/appium.log 2>&1 &
 
-sleep 5
-curl -sf "http://127.0.0.1:4723/status"
+echo "===== Waiting for Appium Port (4723) to Accept Connections ====="
+for i in {1..15}; do
+    if curl -sf "http://127.0.0.1:4723/status" > /dev/null; then
+        echo "Appium Server is up and responding!"
+        break
+    fi
+    echo "Waiting for Appium service map... ($i/15)"
+    sleep 2
+done
 
-echo "===== Running Mobile Test ====="
+echo "===== Running pytest Target Specs ====="
 set +e
 pytest tests/mobile/cart/logged_out_user -v --alluredir=test-reports/allure-results
 TEST_EXIT_CODE=$?
 set -e
 
-# kill "$SYSTEM_MONITOR_PID" || true
-
-echo "===== Appium log ====="
-cat /tmp/appium.log || true
+echo "===== Consolidating Runtime Diagnostics ====="
 cp /tmp/appium.log test-reports/appium.log || true
 
-echo "===== Post-Test UI State ====="
+echo "--- Capturing Final Logcat Snapshot ---"
+# Only pulls down recent test-window buffers to prevent parsing failures or out-of-memory errors
+adb logcat -d | grep -iE "ANR|systemui|not responding|Accessibility|UiAutomator|FATAL EXCEPTION|AndroidRuntime" > test-reports/ui-errors.txt || true
+adb logcat -d > test-reports/logcat.txt || true
 
-echo "--- Current Activity ---"
-adb shell dumpsys activity activities | grep -E "mResumedActivity|mFocusedApp" || true
-
-echo "--- App Process ---"
-adb shell pidof com.saucelabs.mydemoapp.android || true
-
-echo "--- System UI Process ---"
-adb shell pidof com.android.systemui || true
-
-echo "--- Accessibility Services ---"
-adb shell settings get secure enabled_accessibility_services || true
-
-echo "--- Accessibility Manager ---"
-adb shell dumpsys accessibility > test-reports/accessibility.txt || true
-
-echo "--- UI / ANR Errors ---"
-adb logcat -d | grep -iE \
-"ANR|systemui|not responding|Accessibility|UiAutomator|FATAL EXCEPTION|AndroidRuntime" \
-> test-reports/ui-errors.txt || true
-
-echo "--- Full Logcat ---"
-adb logcat -d > test-reports/logcat.txt
-
+echo "===== Workflow Diagnostics Complete ====="
 exit "$TEST_EXIT_CODE"

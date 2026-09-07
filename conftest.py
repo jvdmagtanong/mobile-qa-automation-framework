@@ -36,6 +36,7 @@ def driver():
             "appium:androidInstallTimeout": 180000,
             "appium:uiautomator2ServerInstallTimeout": 180000,
             "appium:uiautomator2ServerLaunchTimeout": 240000,
+            "appium:androidDeviceReadyTimeout": 60,
             "appium:adbExecTimeout": 240000,
             "appium:simpleIsVisibleCheck": False,
             "appium:ignoreUnimportantViews": False,

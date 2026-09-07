@@ -64,14 +64,22 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 29
-          target: google_apis
+          target: google_atd            # Optimized test device image (No UI overhead)
           arch: x86_64
           profile: pixel_2
-          cores: 4
-          ram-size: 4096M
+          cores: 2                      # Prevent CPU throttling on GitHub runner
+          ram-size: 2048M               # Adjusted to prevent host RAM swapping
           disable-animations: true
-          emulator-options: -no-window -gpu swiftshader_indirect -no-audio -no-boot-anim -camera-back none
+          force-avd-creation: true      # Ensures a clean state every run
+          emulator-options: >-
+            -no-window 
+            -gpu offscreen 
+            -no-audio 
+            -no-boot-anim 
+            -camera-back none 
+            -memory 2048
           script: bash scripts/workflow_run_tests.sh
+
 
       - name: Upload Android Diagnostics
         if: always()
