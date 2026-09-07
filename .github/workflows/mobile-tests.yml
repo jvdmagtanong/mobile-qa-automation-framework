@@ -63,23 +63,22 @@ jobs:
       - name: Run Android Emulator and Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 30                  # API 30+ supports native ATD images!
-          target: google_atd            # Keeps the testing image headless & light
-          arch: arm64-v8a               # <--- CRUCIAL FIX: Matches the Apple Silicon host runner
-          profile: Nexus 6               # Clean layout footprint
-          cores: 2                       # Prevents host CPU starvation
-          ram-size: 2048M                # Safe memory allocation
+          api-level: 30
+          target: google_atd            # Stays clean, lightweight, and headless
+          arch: arm64-v8a               # Native Apple Silicon engine execution
+          profile: Nexus 6
+          cores: 2                      # Prevents runner CPU core starvation
+          ram-size: 3072M               # Optimized memory footprint allocation
+          channel: stable               # Guarantees stable image downloads
           disable-animations: true
-          force-avd-creation: true       # Clears out previous dead x86 states
-          emulator-options: >-
+          force-avd-creation: true
+          emulator-options: >-          # Swapped renderer types to fix Apple Silicon freezes
             -no-window 
-            -gpu offscreen 
+            -gpu swiftshader_indirect 
             -no-audio 
             -no-boot-anim 
             -camera-back none
           script: bash scripts/workflow_run_tests.sh
-
-
 
       - name: Upload Android Diagnostics
         if: always()
