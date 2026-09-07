@@ -70,17 +70,18 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 30                  # API 30 seamlessly maps to ATD components
-          target: google_atd            # Stripped-down testing target image
+          target: google_apis
           arch: x86_64                   # Standard x86 architecture for Linux host VMs
           cores: 2                       # Keeps host execution thread healthy
-          ram-size: 2048M
+          ram-size: 3072M
           disable-animations: true
           force-avd-creation: true
           emulator-options: >-
             -no-window 
             -gpu offscreen 
             -no-audio 
-            -no-boot-anim 
+            -no-boot-anim
+            -no-snapshot
             -camera-back none
           script: bash scripts/workflow_run_tests.sh
 
