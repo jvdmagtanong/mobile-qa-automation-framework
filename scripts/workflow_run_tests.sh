@@ -16,10 +16,10 @@ adb shell settings put global window_animation_scale 0.0 || true
 adb shell settings put global transition_animation_scale 0.0 || true
 adb shell settings put global animator_duration_scale 0.0 || true
 
-echo "===== Installing Appium Ecosystem ====="
-# Use appium@next or specify appium@2 for stable production ecosystems
+echo "===== Installing Appium & Driver ====="
 npm install -g appium@2
-appium driver install uiautomator2
+# Forces Appium 2 to install a legacy-compatible v2 major driver branch
+appium driver install uiautomator2@4.2.9
 
 echo "===== Initializing Appium Server Structure ====="
 appium --address 127.0.0.1 --port 4723 --log-level debug > /tmp/appium.log 2>&1 &
