@@ -63,22 +63,22 @@ jobs:
       - name: Run Android Emulator and Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 30
-          target: google_atd            # Optimized test device image (No UI overhead)
-          arch: x86_64
-          profile: pixel_2
-          cores: 2                      # Prevent CPU throttling on GitHub runner
-          ram-size: 2048M               # Adjusted to prevent host RAM swapping
+          api-level: 30                  # API 30+ supports native ATD images!
+          target: google_atd            # Keeps the testing image headless & light
+          arch: arm64-v8a               # <--- CRUCIAL FIX: Matches the Apple Silicon host runner
+          profile: Nexus 6               # Clean layout footprint
+          cores: 2                       # Prevents host CPU starvation
+          ram-size: 2048M                # Safe memory allocation
           disable-animations: true
-          force-avd-creation: true      # Ensures a clean state every run
+          force-avd-creation: true       # Clears out previous dead x86 states
           emulator-options: >-
             -no-window 
             -gpu offscreen 
             -no-audio 
             -no-boot-anim 
-            -camera-back none 
-            -memory 2048
+            -camera-back none
           script: bash scripts/workflow_run_tests.sh
+
 
 
       - name: Upload Android Diagnostics
