@@ -201,11 +201,41 @@ echo "Pytest exit code: $TEST_EXIT_CODE"
 # ============================================================
 
 echo "===== Step 10: Collecting Diagnostics ====="
-
+echo "===== Appium Log ====="
 cp /tmp/appium.log test-reports/appium.log || true
+
+echo "===== ADB Devices ====="
 adb devices > test-reports/adb-devices.txt || true
+
+echo "===== Android Properties ====="
 adb shell getprop > test-reports/getprop.txt || true
+
+echo "===== Accessibility Diagnostics ====="
+adb shell dumpsys accessibility > test-reports/accessibility.txt || true
+
+echo "===== UI/System Errors ====="
+adb logcat -d \
+    | grep -iE \
+      "ANR|systemui|not responding|Accessibility|UiAutomator|FATAL EXCEPTION|AndroidRuntime" \
+    > test-reports/ui-errors.txt || true
+
+echo "===== Full Logcat ====="
 adb logcat -d > test-reports/logcat.txt || true
+
+echo "===== System Monitor ====="
+{
+    echo "===== Date ====="
+    date
+    echo "===== Uptime ====="
+    uptime
+    echo "===== Memory ====="
+    free -h
+    echo "===== CPU ====="
+    nproc
+    echo "===== Processes ====="
+    ps aux --sort=-%cpu | head -20
+} > test-reports/system-monitor.log 2>&1 || true
+echo "===== Workflow Diagnostics Complete ====="
 
 echo "===== Workflow Complete ====="
 
