@@ -14,6 +14,7 @@ def driver():
     # 1. Standard W3C capabilities do NOT use 'appium:'
     capabilities = {
         "platformName": "Android",
+        "appium:automationName": "UiAutomator2",
     }
 
     # 2. Initialize Options class
