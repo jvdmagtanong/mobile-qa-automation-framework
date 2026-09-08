@@ -1,188 +1,134 @@
-```bash
 #!/usr/bin/env bash
 set -e
 
-# ============================================================
-# Configuration
-# ============================================================
-
-ANDROID_SERVICE_TIMEOUT=90
+BOOT_TIMEOUT=90
+PM_TIMEOUT=90
 APPIUM_TIMEOUT=30
 
+echo "============================================================"
+echo "Mobile Test Environment"
+echo "============================================================"
+
 # ============================================================
-# Helper: wait for Android service
+# Step 1: KVM Check
 # ============================================================
 
-wait_for_service() {
-    local service_name="$1"
-    local timeout="$2"
-    local elapsed=0
+echo "===== Step 1: KVM Virtualization Check ====="
 
-    echo "===== Waiting for Android service: $service_name ====="
-    while [ "$elapsed" -lt "$timeout" ]; do
-        if adb shell service check "$service_name" 2>/dev/null | grep -q "found"; then
-            echo "Android service '$service_name' is ready."
-            return 0
-        fi
-        echo "Waiting for '$service_name'... (${elapsed}s/${timeout}s)"
-        sleep 3
-        elapsed=$((elapsed + 3))
-    done
+if [ -r /dev/kvm ] && [ -w /dev/kvm ]; then
+    echo "SUCCESS: KVM hardware acceleration is available."
+else
+    echo "WARNING: KVM is not available."
+fi
 
-    echo "ERROR: Android service '$service_name' did not become ready within ${timeout}s."
-    echo "===== Android Service Diagnostics ====="
+# ============================================================
+# Step 2: Wait for Emulator
+# ============================================================
+
+echo "===== Step 2: Waiting for Android Emulator ====="
+
+for i in $(seq 1 30); do
+    if adb devices | grep -q "emulator-5554.*device"; then
+        echo "Android emulator detected."
+        break
+    fi
+
+    echo "Waiting for emulator... ($i/30)"
+    sleep 2
+done
+
+if ! adb devices | grep -q "emulator-5554.*device"; then
+    echo "ERROR: Android emulator did not become available."
     adb devices || true
-    adb shell getprop sys.boot_completed || true
-    adb shell getprop dev.bootcomplete || true
-    adb shell service check "$service_name" || true
-
-    return 1
-}
+    exit 1
+fi
 
 # ============================================================
-# Wait for Android device
+# Step 3: Wait for Android Boot
 # ============================================================
 
-echo "===== Waiting for Android Emulator ====="
-adb wait-for-device
-echo "Android device detected."
+echo "===== Step 3: Waiting for Android Boot ====="
 
-# ============================================================
-# Wait for Android boot
-# ============================================================
-
-echo "===== Waiting for Android Boot Completion ====="
-boot_timeout=90
-elapsed=0
-
-while [ "$elapsed" -lt "$boot_timeout" ]; do
-    boot_completed=$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')
-    if [ "$boot_completed" = "1" ]; then
+for i in $(seq 1 30); do
+    if [ "$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = "1" ]; then
         echo "Android boot completed."
         break
     fi
-    echo "Waiting for Android boot... (${elapsed}s/${boot_timeout}s)"
+
+    echo "Waiting for Android boot... ($((i * 3))s/$BOOT_TIMEOUT"s")"
     sleep 3
-    elapsed=$((elapsed + 3))
 done
 
-if [ "$boot_completed" != "1" ]; then
-    echo "ERROR: Android did not finish booting within ${boot_timeout}s."
-    echo "===== Boot Diagnostics ====="
-    adb devices || true
+if [ "$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" != "1" ]; then
+    echo "ERROR: Android boot did not complete."
     adb shell getprop sys.boot_completed || true
-    adb shell getprop dev.bootcomplete || true
-    adb shell getprop ro.build.version.sdk || true
-
     exit 1
 fi
 
 # ============================================================
-# Verify critical Android framework services
+# Step 4: Wait for Package Manager
 # ============================================================
 
-echo "===== Verifying Core Android Service Readiness ====="
-# Package Manager
-echo "===== Checking Package Manager ====="
-pm_timeout=90
-elapsed=0
+echo "===== Step 4: Waiting for Package Manager ====="
 
-while [ "$elapsed" -lt "$pm_timeout" ]; do
-    if adb shell pm path android >/dev/null 2>&1; then
+for i in $(seq 1 30); do
+    if timeout 10s adb shell pm path android >/dev/null 2>&1; then
         echo "Package Manager is ready."
         break
     fi
-    echo "Waiting for Package Manager... (${elapsed}s/${pm_timeout}s)"
+
+    echo "Waiting for Package Manager... ($((i * 3))s/$PM_TIMEOUT"s")"
     sleep 3
-    elapsed=$((elapsed + 3))
 done
 
-if ! adb shell pm path android >/dev/null 2>&1; then
+if ! timeout 10s adb shell pm path android >/dev/null 2>&1; then
     echo "ERROR: Package Manager did not become ready."
-    adb shell pm path android || true
-    adb shell service list | head -100 || true
 
-    exit 1
-fi
-
-# Settings
-wait_for_service "settings" "$ANDROID_SERVICE_TIMEOUT"
-
-# Activity Manager
-wait_for_service "activity" "$ANDROID_SERVICE_TIMEOUT"
-
-# ============================================================
-# Verify framework is actually responding
-# ============================================================
-
-echo "===== Performing Android Framework Health Check ====="
-if ! adb shell cmd settings get global adb_enabled >/dev/null 2>&1; then
-    echo "ERROR: Settings service is present but not responding correctly."
+    echo "===== Android Diagnostics ====="
+    adb devices || true
+    adb shell service check package || true
     adb shell service check settings || true
-    exit 1
-fi
-
-if ! adb shell dumpsys activity activities >/dev/null 2>&1; then
-    echo "ERROR: Activity Manager is present but not responding correctly."
     adb shell service check activity || true
+    adb shell getprop sys.boot_completed || true
+
     exit 1
 fi
 
-echo "Android framework health check passed."
-
 # ============================================================
-# Configure Android
+# Step 5: SystemUI Check
 # ============================================================
 
-echo "===== Optimizing UI System Configuration ====="
-adb shell settings put global hide_error_dialogs 1
-adb shell settings put global window_animation_scale 0.0
-adb shell settings put global transition_animation_scale 0.0
-adb shell settings put global animator_duration_scale 0.0
+echo "===== Step 5: Checking SystemUI ====="
 
-echo "Android UI configuration applied successfully."
-
-# ============================================================
-# Working directories
-# ============================================================
-
-echo "===== Ensuring Working Directories Exist ====="
-mkdir -p test-reports
-mkdir -p test-reports/allure-results
+if adb shell pidof com.android.systemui >/dev/null 2>&1; then
+    echo "SystemUI is running."
+else
+    echo "WARNING: SystemUI process not detected."
+fi
 
 # ============================================================
-# Emulator status
+# Step 6: Install Appium
 # ============================================================
 
-echo "===== Emulator Status Check ====="
-echo "--- Devices ---"
-adb devices
-echo "--- Boot Status ---"
-adb shell getprop sys.boot_completed
-echo "--- Android Version ---"
-adb shell getprop ro.build.version.release
-echo "--- API Level ---"
-adb shell getprop ro.build.version.sdk
-echo "--- Architecture ---"
-adb shell getprop ro.product.cpu.abi
+echo "===== Step 6: Installing Appium ====="
 
-# ============================================================
-# Install Appium
-# ============================================================
-echo "===== Installing Appium & Driver ====="
 npm install -g appium@2
 appium driver install uiautomator2
-echo "===== Appium Version ====="
+
+echo "Appium version:"
 appium --version
-echo "===== UiAutomator2 Driver ====="
+
+echo "Installed drivers:"
 appium driver list --installed
 
 # ============================================================
-# Start Appium
+# Step 7: Start Appium
 # ============================================================
 
-echo "===== Starting Appium Server ====="
+echo "===== Step 7: Starting Appium ====="
+
 rm -f /tmp/appium.log
+
 appium \
     --address 127.0.0.1 \
     --port 4723 \
@@ -194,30 +140,34 @@ APPIUM_PID=$!
 echo "Appium PID: $APPIUM_PID"
 
 # ============================================================
-# Wait for Appium
+# Step 8: Wait for Appium
 # ============================================================
-echo "===== Waiting for Appium Port (4723) ====="
+
+echo "===== Step 8: Waiting for Appium ====="
+
 appium_ready=false
 
 for i in $(seq 1 "$APPIUM_TIMEOUT"); do
-    if ! kill -0 "$APPIUM_PID" 2>/dev/null; then
-        echo "ERROR: Appium process exited unexpectedly."
-        echo "===== Appium Log ====="
-        cat /tmp/appium.log || true
 
+    if ! kill -0 "$APPIUM_PID" 2>/dev/null; then
+        echo "ERROR: Appium exited unexpectedly."
+        cat /tmp/appium.log || true
         exit 1
     fi
+
     if curl -sf "http://127.0.0.1:4723/status" >/dev/null; then
-        echo "Appium Server is up and responding!"
+        echo "Appium is ready."
         appium_ready=true
         break
     fi
+
     echo "Waiting for Appium... ($i/${APPIUM_TIMEOUT}s)"
     sleep 1
 done
 
 if [ "$appium_ready" != true ]; then
-    echo "ERROR: Appium did not become ready within ${APPIUM_TIMEOUT}s."
+    echo "ERROR: Appium did not become ready."
+
     echo "===== Appium Log ====="
     cat /tmp/appium.log || true
 
@@ -225,9 +175,12 @@ if [ "$appium_ready" != true ]; then
 fi
 
 # ============================================================
-# Run Tests
+# Step 9: Run Tests
 # ============================================================
-echo "===== Running pytest Target Specs ====="
+
+echo "===== Step 9: Running Tests ====="
+
+mkdir -p test-reports/allure-results
 
 set +e
 
@@ -240,25 +193,19 @@ TEST_EXIT_CODE=$?
 
 set -e
 
-echo "===== pytest Exit Code: $TEST_EXIT_CODE ====="
+echo "Pytest exit code: $TEST_EXIT_CODE"
 
 # ============================================================
-# Diagnostics
+# Step 10: Diagnostics
 # ============================================================
 
-echo "===== Consolidating Runtime Diagnostics ====="
+echo "===== Step 10: Collecting Diagnostics ====="
+
 cp /tmp/appium.log test-reports/appium.log || true
-echo "--- Capturing Android Diagnostics ---"
 adb devices > test-reports/adb-devices.txt || true
 adb shell getprop > test-reports/getprop.txt || true
-echo "--- Capturing UI/System Errors ---"
-adb logcat -d \
-    | grep -iE \
-      "ANR|systemui|not responding|Accessibility|UiAutomator|FATAL EXCEPTION|AndroidRuntime" \
-    > test-reports/ui-errors.txt || true
-echo "--- Capturing Full Logcat ---"
 adb logcat -d > test-reports/logcat.txt || true
-echo "===== Workflow Diagnostics Complete ====="
+
+echo "===== Workflow Complete ====="
 
 exit "$TEST_EXIT_CODE"
-```
