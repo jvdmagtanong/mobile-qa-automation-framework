@@ -72,20 +72,23 @@ fi
 # ============================================================
 
 echo "===== Step 4: Waiting for Package Manager ====="
-
+PM_READY_COUNT=0
 for i in $(seq 1 30); do
     if timeout 10s adb shell pm path android >/dev/null 2>&1; then
-        echo "Package Manager is ready."
-        break
+        PM_READY_COUNT=$((PM_READY_COUNT + 1))
+        echo "Package Manager check passed ($PM_READY_COUNT/3)"
+        if [ "$PM_READY_COUNT" -ge 3 ]; then
+            echo "Package Manager is ready."
+            break
+        fi
+    else
+        PM_READY_COUNT=0
+        echo "Waiting for Package Manager... ($((i * 3))s/$PM_TIMEOUT"s")"
     fi
-
-    echo "Waiting for Package Manager... ($((i * 3))s/$PM_TIMEOUT"s")"
     sleep 3
 done
-
-if ! timeout 10s adb shell pm path android >/dev/null 2>&1; then
-    echo "ERROR: Package Manager did not become ready."
-
+if [ "$PM_READY_COUNT" -lt 3 ]; then
+    echo "ERROR: Package Manager did not become stable."
     echo "===== Android Diagnostics ====="
     adb devices || true
     adb shell service check package || true
