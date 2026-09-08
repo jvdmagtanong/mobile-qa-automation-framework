@@ -2,7 +2,7 @@
 set -e
 
 echo "===== workflow_run_tests.sh STARTED ====="
-
+mkdir -p test-reports
 BOOT_TIMEOUT=90
 PM_TIMEOUT=90
 APPIUM_TIMEOUT=30
