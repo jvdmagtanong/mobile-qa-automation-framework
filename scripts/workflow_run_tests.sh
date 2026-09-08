@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -e
 
+echo "===== workflow_run_tests.sh STARTED ====="
+
 BOOT_TIMEOUT=90
 PM_TIMEOUT=90
 APPIUM_TIMEOUT=30

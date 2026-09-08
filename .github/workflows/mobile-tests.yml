@@ -76,7 +76,7 @@ jobs:
           profile: pixel_2
           cores: 2
           ram-size: 3072M
-          disable-animations: true
+          disable-animations: false
           force-avd-creation: true
           emulator-options: >-
             -no-window 
