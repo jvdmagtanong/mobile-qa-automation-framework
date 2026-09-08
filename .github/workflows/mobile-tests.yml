@@ -69,16 +69,17 @@ jobs:
       - name: Run Android Emulator and Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 30                  # API 30 seamlessly maps to ATD components
+          api-level: 30
           target: google_apis
-          arch: x86_64                   # Standard x86 architecture for Linux host VMs
-          cores: 2                       # Keeps host execution thread healthy
+          arch: x86_64
+          profile: pixel_2
+          cores: 2
           ram-size: 3072M
           disable-animations: true
           force-avd-creation: true
           emulator-options: >-
             -no-window 
-            -gpu offscreen 
+            -gpu swiftshader_indirect 
             -no-audio 
             -no-boot-anim
             -no-snapshot
