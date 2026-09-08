@@ -261,6 +261,13 @@ echo "===== System Monitor ====="
     echo "===== Processes ====="
     ps aux --sort=-%cpu | head -20
 } > test-reports/system-monitor.log 2>&1 || true
+echo "===== Final Android Framework Health Check ====="
+adb shell service check package || true
+adb shell service check activity || true
+adb shell service check settings || true
+adb shell pidof system_server || true
+adb shell pidof com.android.systemui || true
+adb shell getprop sys.boot_completed || true
 echo "===== Workflow Diagnostics Complete ====="
 
 echo "===== Workflow Complete ====="
