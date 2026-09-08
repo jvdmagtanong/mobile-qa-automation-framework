@@ -113,7 +113,18 @@ if adb shell pidof com.android.systemui >/dev/null 2>&1; then
 else
     echo "WARNING: SystemUI process not detected."
 fi
-# Step 5.5: Android Framework Stabilization Check
+# ============================================================
+# Step 5.5: Capture Android Framework Logs
+# ============================================================
+echo "===== Starting Android Logcat Capture ====="
+rm -f /tmp/android-logcat.txt
+adb logcat -c || true
+adb logcat > /tmp/android-logcat.txt 2>&1 &
+LOGCAT_PID=$!
+echo "Logcat PID: $LOGCAT_PID"
+# ============================================================
+# Step 5.6: Android Framework Stabilization Check
+# ============================================================
 echo "===== Android Framework Stabilization Check ====="
 
 for i in $(seq 1 10); do
@@ -141,10 +152,13 @@ appium --version
 echo "Installed drivers:"
 appium driver list --installed
 
+echo "===== Saving Framework Diagnostics ====="
+kill "$LOGCAT_PID" 2>/dev/null || true
+cp /tmp/android-logcat.txt test-reports/logcat-framework.txt || true
+echo "===== Framework Diagnostics Saved ====="
+
 SETTINGS_APK="$HOME/.appium/node_modules/appium-uiautomator2-driver/node_modules/io.appium.settings/apks/settings_apk-debug.apk"
-
 echo "===== Testing Appium Settings APK Installation ====="
-
 timeout 60s adb -s emulator-5554 install -g "$SETTINGS_APK"
 
 # ============================================================
