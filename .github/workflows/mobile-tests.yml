@@ -93,6 +93,7 @@ jobs:
         with:
           name: android-diagnostics
           path: |
+            test-reports/logcat-framework.txt
             test-reports/accessibility.txt
             test-reports/ui-errors.txt
             test-reports/logcat.txt
