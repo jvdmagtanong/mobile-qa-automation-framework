@@ -122,6 +122,12 @@ appium --version
 echo "Installed drivers:"
 appium driver list --installed
 
+SETTINGS_APK="$HOME/.appium/node_modules/appium-uiautomator2-driver/node_modules/io.appium.settings/apks/settings_apk-debug.apk"
+
+echo "===== Testing Appium Settings APK Installation ====="
+
+timeout 60s adb -s emulator-5554 install -g "$SETTINGS_APK"
+
 # ============================================================
 # Step 7: Start Appium
 # ============================================================
@@ -174,6 +180,26 @@ if [ "$appium_ready" != true ]; then
 
     exit 1
 fi
+
+echo "===== Android Framework Health Check ====="
+
+echo "Package Manager:"
+adb shell service check package || true
+
+echo "Activity Manager:"
+adb shell service check activity || true
+
+echo "Settings:"
+adb shell service check settings || true
+
+echo "System Server:"
+adb shell pidof system_server || true
+
+echo "System UI:"
+adb shell pidof com.android.systemui || true
+
+echo "Boot completed:"
+adb shell getprop sys.boot_completed || true
 
 # ============================================================
 # Step 9: Run Tests
