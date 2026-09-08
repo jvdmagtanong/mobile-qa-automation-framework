@@ -113,8 +113,7 @@ fi
 # ============================================================
 
 echo "===== Step 6: Installing Appium ====="
-
-npm install -g appium@2
+npm install -g appium@3
 appium driver install uiautomator2
 
 echo "Appium version:"
