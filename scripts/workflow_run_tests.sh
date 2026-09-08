@@ -67,6 +67,9 @@ if [ "$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" != "1" ]
     exit 1
 fi
 
+# echo "===== Step 3.5: Allowing Android Framework to Stabilize ====="
+# sleep 15
+
 # ============================================================
 # Step 4: Wait for Package Manager
 # ============================================================
@@ -110,6 +113,19 @@ if adb shell pidof com.android.systemui >/dev/null 2>&1; then
 else
     echo "WARNING: SystemUI process not detected."
 fi
+# Step 5.5: Android Framework Stabilization Check
+echo "===== Android Framework Stabilization Check ====="
+
+for i in $(seq 1 10); do
+    echo "--- Framework check $i/10 ---"
+
+    adb shell service check package || true
+    adb shell service check settings || true
+    adb shell service check activity || true
+    adb shell pidof system_server || true
+
+    sleep 2
+done
 
 # ============================================================
 # Step 6: Install Appium
