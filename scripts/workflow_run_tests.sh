@@ -76,43 +76,38 @@ fi
 
 echo "===== Step 4: Waiting for Android Framework Services ====="
 FRAMEWORK_TIMEOUT=120
-FRAMEWORK_READY=false
+FRAMEWORK_READY_COUNT=0
 
 for i in $(seq 1 "$FRAMEWORK_TIMEOUT"); do
-    PACKAGE_OK=false
-    SETTINGS_OK=false
-    ACTIVITY_OK=false
-
-    if adb shell service check package 2>/dev/null | grep -q "found"; then
-        PACKAGE_OK=true
-    fi
-
-    if adb shell service check settings 2>/dev/null | grep -q "found"; then
-        SETTINGS_OK=true
-    fi
-
-    if adb shell service check activity 2>/dev/null | grep -q "found"; then
-        ACTIVITY_OK=true
-    fi
+    PACKAGE_SERVICE="$(adb shell service check package 2>/dev/null | tr -d '\r')"
+    SETTINGS_SERVICE="$(adb shell service check settings 2>/dev/null | tr -d '\r')"
+    ACTIVITY_SERVICE="$(adb shell service check activity 2>/dev/null | tr -d '\r')"
 
     echo "Framework readiness $i/$FRAMEWORK_TIMEOUT:"
-    echo "  package:  $PACKAGE_OK"
-    echo "  settings: $SETTINGS_OK"
-    echo "  activity: $ACTIVITY_OK"
+    echo "  $PACKAGE_SERVICE"
+    echo "  $SETTINGS_SERVICE"
+    echo "  $ACTIVITY_SERVICE"
 
-    if [ "$PACKAGE_OK" = true ] && \
-       [ "$SETTINGS_OK" = true ] && \
-       [ "$ACTIVITY_OK" = true ]; then
-        echo "SUCCESS: Required Android framework services are ready."
-        FRAMEWORK_READY=true
-        break
+    if [[ "$PACKAGE_SERVICE" == "Service package: found" ]] && \
+       [[ "$SETTINGS_SERVICE" == "Service settings: found" ]] && \
+       [[ "$ACTIVITY_SERVICE" == "Service activity: found" ]]; then
+        FRAMEWORK_READY_COUNT=$((FRAMEWORK_READY_COUNT + 1))
+        echo "Framework services check passed ($FRAMEWORK_READY_COUNT/3)"
+
+        if [ "$FRAMEWORK_READY_COUNT" -ge 3 ]; then
+            echo "SUCCESS: Required Android framework services are ready and stable."
+            break
+        fi
+    else
+        FRAMEWORK_READY_COUNT=0
+        echo "Waiting for Android framework services..."
     fi
 
     sleep 1
 done
 
-if [ "$FRAMEWORK_READY" != true ]; then
-    echo "ERROR: Android framework services did not become ready."
+if [ "$FRAMEWORK_READY_COUNT" -lt 3 ]; then
+    echo "ERROR: Android framework services did not become stable."
     echo "===== Android Diagnostics ====="
     adb devices || true
     adb shell service check package || true
