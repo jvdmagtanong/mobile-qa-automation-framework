@@ -264,49 +264,6 @@ appium driver list --installed
 
 echo "===== Framework Watchdog Remains Active ====="
 
-SETTINGS_APK="$HOME/.appium/node_modules/appium-uiautomator2-driver/node_modules/io.appium.settings/apks/settings_apk-debug.apk"
-
-echo "===== Testing Appium Settings APK Installation ====="
-
-INSTALL_LOG="test-reports/settings-install.log"
-
-adb -s emulator-5554 logcat -c
-
-adb -s emulator-5554 logcat > test-reports/settings-install-logcat.txt 2>&1 &
-INSTALL_LOGCAT_PID=$!
-
-echo "===== Settings APK Install START ====="
-echo "Server timestamp BEFORE install: $(date '+%m-%d %H:%M:%S.%3N')"
-echo "Install logcat PID: $INSTALL_LOGCAT_PID"
-
-set +e
-
-timeout 60s adb -s emulator-5554 install -g "$SETTINGS_APK" \
-    > "$INSTALL_LOG" 2>&1
-
-INSTALL_RC=$?
-
-set -e
-echo "===== adb install finished ====="
-echo "Server timestamp AFTER install: $(date '+%m-%d %H:%M:%S.%3N')"
-echo "Install exit code: $INSTALL_RC"
-
-kill "$INSTALL_LOGCAT_PID" 2>/dev/null || true
-wait "$INSTALL_LOGCAT_PID" 2>/dev/null || true
-
-echo "===== adb install output ====="
-cat "$INSTALL_LOG" || true
-echo "===== Checking Appium Settings package ====="
-adb -s emulator-5554 shell pm list packages | grep "io.appium.settings" || true
-adb -s emulator-5554 shell pm path io.appium.settings || true
-
-if [ "$INSTALL_RC" -ne 0 ]; then
-    echo "ERROR: Appium Settings APK installation failed or timed out."
-    exit "$INSTALL_RC"
-fi
-
-echo "===== Appium Settings APK Installation SUCCESS ====="
-
 # ============================================================
 # Step 7: Start Appium
 # ============================================================
