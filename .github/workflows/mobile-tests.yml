@@ -76,6 +76,7 @@ jobs:
           profile: pixel_2
           cores: 4
           ram-size: 4096M
+          disable-linux-hw-accel: false
           disable-animations: false
           force-avd-creation: true
           emulator-options: >-
