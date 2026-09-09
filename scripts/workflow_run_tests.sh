@@ -149,16 +149,47 @@ rm -f "$WATCHDOG_LOG" "$WATCHDOG_EVENT_LOG"
 echo "===== Framework Watchdog Started =====" > "$WATCHDOG_LOG"
 echo "Timestamp | package | settings | activity | system_server_pid" >> "$WATCHDOG_LOG"
 
+run_with_timeout() {
+    timeout 5s "$@" 2>&1 || echo "TIMEOUT"
+}
+
 framework_watchdog() {
     LAST_HEALTHY="true"
     LAST_SYSTEM_SERVER_PID=""
 
     while true; do
         TIMESTAMP="$(date '+%Y-%m-%d %H:%M:%S.%3N')"
-        PACKAGE_SERVICE="$(adb shell service check package 2>/dev/null | tr -d '\r')"
-        SETTINGS_SERVICE="$(adb shell service check settings 2>/dev/null | tr -d '\r')"
-        ACTIVITY_SERVICE="$(adb shell service check activity 2>/dev/null | tr -d '\r')"
-        SYSTEM_SERVER_PID="$(adb shell pidof system_server 2>/dev/null | tr -d '\r')"
+        PACKAGE_SERVICE="$(run_with_timeout adb shell service check package | tr -d '\r')"
+        SETTINGS_SERVICE="$(run_with_timeout adb shell service check settings | tr -d '\r')"
+        ACTIVITY_SERVICE="$(run_with_timeout adb shell service check activity | tr -d '\r')"
+        SYSTEM_SERVER_PID="$(run_with_timeout adb shell pidof system_server | tr -d '\r')"
+
+        if [[ "$PACKAGE_SERVICE" == *"TIMEOUT"* ||
+            "$SETTINGS_SERVICE" == *"TIMEOUT"* ||
+            "$ACTIVITY_SERVICE" == *"TIMEOUT"* ||
+            "$SYSTEM_SERVER_PID" == *"TIMEOUT"* ]]; then
+
+            echo "[$TIMESTAMP] Framework service check timed out." >> "$WATCHDOG_LOG"
+
+            {
+                echo "===== ANDROID FRAMEWORK FAILURE DETECTED ====="
+                echo "Timestamp: $TIMESTAMP"
+                echo "Package: $PACKAGE_SERVICE"
+                echo "Settings: $SETTINGS_SERVICE"
+                echo "Activity: $ACTIVITY_SERVICE"
+                echo "system_server PID: $SYSTEM_SERVER_PID"
+                echo
+                echo "===== ADB DEVICES ====="
+                adb devices || true
+                echo
+                echo "===== LOGCAT AT FAILURE ====="
+                adb logcat -d -b all -v threadtime 2>&1 || true
+                echo
+                echo "===== END ANDROID FRAMEWORK FAILURE ====="
+            } > "$WATCHDOG_EVENT_LOG"
+
+            break
+        fi
 
         echo "$TIMESTAMP | $PACKAGE_SERVICE | $SETTINGS_SERVICE | $ACTIVITY_SERVICE | system_server=$SYSTEM_SERVER_PID" >> "$WATCHDOG_LOG"
 
