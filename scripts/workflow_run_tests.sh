@@ -131,9 +131,9 @@ fi
 # Step 5.5: Capture Android Framework Logs
 # ============================================================
 echo "===== Starting Android Logcat Capture ====="
-rm -f /tmp/android-logcat.txt
+rm -f test-reports/logcat-framework.txt
 adb logcat -c || true
-adb logcat > /tmp/android-logcat.txt 2>&1 &
+adb -s emulator-5554 logcat -b all -v threadtime > test-reports/logcat-framework.txt 2>&1 &
 LOGCAT_PID=$!
 echo "Logcat PID: $LOGCAT_PID"
 
@@ -406,7 +406,6 @@ if [[ -n "${LOGCAT_PID:-}" ]]; then
     kill "$LOGCAT_PID" 2>/dev/null || true
     wait "$LOGCAT_PID" 2>/dev/null || true
 fi
-cp /tmp/android-logcat.txt test-reports/logcat-framework.txt || true
 
 echo "===== Appium Log ====="
 cp /tmp/appium.log test-reports/appium.log || true
