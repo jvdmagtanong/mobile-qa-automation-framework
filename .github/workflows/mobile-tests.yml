@@ -99,6 +99,10 @@ jobs:
             test-reports/appium.log
             test-reports/system-monitor.log
             test-reports/logcat-framework.txt
+            test-reports/settings-install.log
+            test-reports/settings-install-logcat.txt
+            test-reports/framework-watchdog.log
+            test-reports/framework-failure.log
           if-no-files-found: warn
       
       - name: Install Allure
