@@ -71,34 +71,55 @@ fi
 # sleep 15
 
 # ============================================================
-# Step 4: Wait for Package Manager
+# Step 4: Wait for Android Framework Services
 # ============================================================
 
-echo "===== Step 4: Waiting for Package Manager ====="
-PM_READY_COUNT=0
-for i in $(seq 1 30); do
-    if timeout 10s adb shell pm path android >/dev/null 2>&1; then
-        PM_READY_COUNT=$((PM_READY_COUNT + 1))
-        echo "Package Manager check passed ($PM_READY_COUNT/3)"
-        if [ "$PM_READY_COUNT" -ge 3 ]; then
-            echo "Package Manager is ready."
-            break
-        fi
-    else
-        PM_READY_COUNT=0
-        echo "Waiting for Package Manager... ($((i * 3))s/$PM_TIMEOUT"s")"
+echo "===== Step 4: Waiting for Android Framework Services ====="
+FRAMEWORK_TIMEOUT=120
+FRAMEWORK_READY=false
+
+for i in $(seq 1 "$FRAMEWORK_TIMEOUT"); do
+    PACKAGE_OK=false
+    SETTINGS_OK=false
+    ACTIVITY_OK=false
+
+    if adb shell service check package 2>/dev/null | grep -q "found"; then
+        PACKAGE_OK=true
     fi
-    sleep 3
+
+    if adb shell service check settings 2>/dev/null | grep -q "found"; then
+        SETTINGS_OK=true
+    fi
+
+    if adb shell service check activity 2>/dev/null | grep -q "found"; then
+        ACTIVITY_OK=true
+    fi
+
+    echo "Framework readiness $i/$FRAMEWORK_TIMEOUT:"
+    echo "  package:  $PACKAGE_OK"
+    echo "  settings: $SETTINGS_OK"
+    echo "  activity: $ACTIVITY_OK"
+
+    if [ "$PACKAGE_OK" = true ] && \
+       [ "$SETTINGS_OK" = true ] && \
+       [ "$ACTIVITY_OK" = true ]; then
+        echo "SUCCESS: Required Android framework services are ready."
+        FRAMEWORK_READY=true
+        break
+    fi
+
+    sleep 1
 done
-if [ "$PM_READY_COUNT" -lt 3 ]; then
-    echo "ERROR: Package Manager did not become stable."
+
+if [ "$FRAMEWORK_READY" != true ]; then
+    echo "ERROR: Android framework services did not become ready."
     echo "===== Android Diagnostics ====="
     adb devices || true
     adb shell service check package || true
     adb shell service check settings || true
     adb shell service check activity || true
+    adb shell pidof system_server || true
     adb shell getprop sys.boot_completed || true
-
     exit 1
 fi
 
@@ -180,7 +201,6 @@ timeout 60s adb -s emulator-5554 install -g "$SETTINGS_APK" \
 INSTALL_RC=$?
 
 set -e
-
 echo "===== adb install finished ====="
 echo "Server timestamp AFTER install: $(date '+%m-%d %H:%M:%S.%3N')"
 echo "Install exit code: $INSTALL_RC"
@@ -190,7 +210,6 @@ wait "$INSTALL_LOGCAT_PID" 2>/dev/null || true
 
 echo "===== adb install output ====="
 cat "$INSTALL_LOG" || true
-
 echo "===== Checking Appium Settings package ====="
 adb -s emulator-5554 shell pm list packages | grep "io.appium.settings" || true
 adb -s emulator-5554 shell pm path io.appium.settings || true
@@ -259,19 +278,14 @@ echo "===== Android Framework Health Check ====="
 
 echo "Package Manager:"
 adb shell service check package || true
-
 echo "Activity Manager:"
 adb shell service check activity || true
-
 echo "Settings:"
 adb shell service check settings || true
-
 echo "System Server:"
 adb shell pidof system_server || true
-
 echo "System UI:"
 adb shell pidof com.android.systemui || true
-
 echo "Boot completed:"
 adb shell getprop sys.boot_completed || true
 
@@ -312,16 +326,13 @@ adb shell getprop > test-reports/getprop.txt || true
 
 echo "===== Accessibility Diagnostics ====="
 adb shell dumpsys accessibility > test-reports/accessibility.txt || true
-
 echo "===== UI/System Errors ====="
 adb logcat -d \
     | grep -iE \
       "ANR|systemui|not responding|Accessibility|UiAutomator|FATAL EXCEPTION|AndroidRuntime" \
     > test-reports/ui-errors.txt || true
-
 echo "===== Full Logcat ====="
 adb logcat -d > test-reports/logcat.txt || true
-
 echo "===== System Monitor ====="
 {
     echo "===== Date ====="
