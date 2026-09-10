@@ -6,3 +6,4 @@ __pycache__/
 test-reports/
 .vscode/
 apps/
+scripts/cleanup-github-runs.sh
