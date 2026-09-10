@@ -4,7 +4,6 @@ set -e
 echo "===== workflow_run_tests.sh STARTED ====="
 mkdir -p test-reports
 BOOT_TIMEOUT=90
-PM_TIMEOUT=90
 APPIUM_TIMEOUT=30
 
 echo "============================================================"
@@ -128,7 +127,7 @@ else
 fi
 
 # ============================================================
-# Step 5.5: Capture Android Framework Logs
+# Step 6: Capture Android Framework Logs
 # ============================================================
 echo "===== Starting Android Logcat Capture ====="
 rm -f test-reports/logcat-framework.txt
@@ -138,152 +137,10 @@ LOGCAT_PID=$!
 echo "Logcat PID: $LOGCAT_PID"
 
 # ============================================================
-# Step 5.6: Android Framework Runtime Watchdog
-# ============================================================
-echo "===== Starting Android Framework Runtime Watchdog ====="
-
-WATCHDOG_LOG="test-reports/framework-watchdog.log"
-WATCHDOG_EVENT_LOG="test-reports/framework-failure.log"
-rm -f "$WATCHDOG_LOG" "$WATCHDOG_EVENT_LOG"
-
-echo "===== Framework Watchdog Started =====" > "$WATCHDOG_LOG"
-echo "Timestamp | package | settings | activity | system_server_pid" >> "$WATCHDOG_LOG"
-
-run_with_timeout() {
-    timeout 5s "$@" 2>&1 || echo "TIMEOUT"
-}
-
-framework_watchdog() {
-    LAST_HEALTHY="true"
-    LAST_SYSTEM_SERVER_PID=""
-
-    while true; do
-        TIMESTAMP="$(date '+%Y-%m-%d %H:%M:%S.%3N')"
-        PACKAGE_SERVICE="$(run_with_timeout adb shell service check package | tr -d '\r')"
-        SETTINGS_SERVICE="$(run_with_timeout adb shell service check settings | tr -d '\r')"
-        ACTIVITY_SERVICE="$(run_with_timeout adb shell service check activity | tr -d '\r')"
-        SYSTEM_SERVER_PID="$(run_with_timeout adb shell pidof system_server | tr -d '\r')"
-
-        if [[ "$PACKAGE_SERVICE" == *"TIMEOUT"* ||
-            "$SETTINGS_SERVICE" == *"TIMEOUT"* ||
-            "$ACTIVITY_SERVICE" == *"TIMEOUT"* ||
-            "$SYSTEM_SERVER_PID" == *"TIMEOUT"* ]]; then
-
-            echo "[$TIMESTAMP] Framework service check timed out." >> "$WATCHDOG_LOG"
-
-            {
-                echo "===== ANDROID FRAMEWORK FAILURE DETECTED ====="
-                echo "Timestamp: $TIMESTAMP"
-                echo "Package: $PACKAGE_SERVICE"
-                echo "Settings: $SETTINGS_SERVICE"
-                echo "Activity: $ACTIVITY_SERVICE"
-                echo "system_server PID: $SYSTEM_SERVER_PID"
-                echo
-                echo "===== ADB DEVICES ====="
-                adb devices || true
-                echo
-                echo "===== LOGCAT AT FAILURE ====="
-                adb logcat -d -b all -v threadtime 2>&1 || true
-                echo
-                echo "===== END ANDROID FRAMEWORK FAILURE ====="
-            } > "$WATCHDOG_EVENT_LOG"
-
-            break
-        fi
-
-        echo "$TIMESTAMP | $PACKAGE_SERVICE | $SETTINGS_SERVICE | $ACTIVITY_SERVICE | system_server=$SYSTEM_SERVER_PID" >> "$WATCHDOG_LOG"
-
-        SERVICES_HEALTHY="false"
-        if [[ "$PACKAGE_SERVICE" == "Service package: found" ]] && \
-           [[ "$SETTINGS_SERVICE" == "Service settings: found" ]] && \
-           [[ "$ACTIVITY_SERVICE" == "Service activity: found" ]] && \
-           [[ -n "$SYSTEM_SERVER_PID" ]]; then
-            SERVICES_HEALTHY="true"
-        fi
-
-        PID_CHANGED="false"
-        if [[ -n "$LAST_SYSTEM_SERVER_PID" ]] && \
-           [[ -n "$SYSTEM_SERVER_PID" ]] && \
-           [[ "$SYSTEM_SERVER_PID" != "$LAST_SYSTEM_SERVER_PID" ]]; then
-            PID_CHANGED="true"
-        fi
-
-        if [[ "$SERVICES_HEALTHY" != "true" ]] && \
-           { [[ "$LAST_HEALTHY" == "true" ]] || [[ "$PID_CHANGED" == "true" ]]; }; then
-            {
-                echo "===== ANDROID FRAMEWORK FAILURE DETECTED ====="
-                echo "Timestamp: $TIMESTAMP"
-                echo "Package: $PACKAGE_SERVICE"
-                echo "Settings: $SETTINGS_SERVICE"
-                echo "Activity: $ACTIVITY_SERVICE"
-                echo "system_server PID: $SYSTEM_SERVER_PID"
-                echo "Previous system_server PID: $LAST_SYSTEM_SERVER_PID"
-                echo "system_server PID changed: $PID_CHANGED"
-                echo
-                echo "===== ADB DEVICES ====="
-                adb devices || true
-                echo
-                echo "===== SERVICE CHECKS ====="
-                adb shell service check package || true
-                adb shell service check settings || true
-                adb shell service check activity || true
-                echo
-                echo "===== SYSTEM SERVER ====="
-                adb shell pidof system_server || true
-                echo
-                echo "===== SYSTEM SERVER PROCESS ====="
-                adb shell ps -A | grep system_server || true
-                echo
-                echo "===== PACKAGE MANAGER DUMPSYS ====="
-                adb shell dumpsys package 2>&1 || true
-                echo
-                echo "===== ACTIVITY MANAGER DUMPSYS ====="
-                adb shell dumpsys activity 2>&1 || true
-                echo
-                echo "===== SETTINGS DUMPSYS ====="
-                adb shell dumpsys settings 2>&1 || true
-                echo
-                echo "===== LOGCAT AT FAILURE ====="
-                adb logcat -d -b all -v threadtime 2>&1 || true
-                echo
-                echo "===== END ANDROID FRAMEWORK FAILURE ====="
-            } > "$WATCHDOG_EVENT_LOG"
-
-            echo "[$TIMESTAMP] ANDROID FRAMEWORK FAILURE DETECTED. Diagnostics saved to $WATCHDOG_EVENT_LOG" >> "$WATCHDOG_LOG"
-        fi
-
-        if [[ "$SERVICES_HEALTHY" == "true" ]] && [[ "$LAST_HEALTHY" != "true" ]]; then
-            echo "[$TIMESTAMP] Android framework services recovered." >> "$WATCHDOG_LOG"
-        fi
-
-        if [[ "$PID_CHANGED" == "true" ]]; then
-            echo "[$TIMESTAMP] system_server PID changed: $LAST_SYSTEM_SERVER_PID -> $SYSTEM_SERVER_PID" >> "$WATCHDOG_LOG"
-        fi
-
-        LAST_HEALTHY="$SERVICES_HEALTHY"
-        LAST_SYSTEM_SERVER_PID="$SYSTEM_SERVER_PID"
-        sleep 2
-    done
-}
-
-framework_watchdog &
-FRAMEWORK_WATCHDOG_PID=$!
-echo "Framework watchdog PID: $FRAMEWORK_WATCHDOG_PID"
-
-cleanup_watchdog() {
-    if [[ -n "${FRAMEWORK_WATCHDOG_PID:-}" ]] && kill -0 "$FRAMEWORK_WATCHDOG_PID" 2>/dev/null; then
-        kill "$FRAMEWORK_WATCHDOG_PID" 2>/dev/null || true
-        wait "$FRAMEWORK_WATCHDOG_PID" 2>/dev/null || true
-    fi
-}
-
-trap cleanup_watchdog EXIT
-
-# ============================================================
-# Step 6: Install Appium
+# Step 7: Install Appium
 # ============================================================
 
-echo "===== Step 6: Installing Appium ====="
+echo "===== Step 7: Installing Appium ====="
 npm install -g appium@3
 appium driver install uiautomator2
 
@@ -293,56 +150,11 @@ appium --version
 echo "Installed drivers:"
 appium driver list --installed
 
-echo "===== Framework Watchdog Remains Active ====="
-
-SETTINGS_APK="$HOME/.appium/node_modules/appium-uiautomator2-driver/node_modules/io.appium.settings/apks/settings_apk-debug.apk"
-
-echo "===== Testing Appium Settings APK Installation ====="
-
-INSTALL_LOG="test-reports/settings-install.log"
-
-adb -s emulator-5554 logcat -c
-
-adb -s emulator-5554 logcat > test-reports/settings-install-logcat.txt 2>&1 &
-INSTALL_LOGCAT_PID=$!
-
-echo "===== Settings APK Install START ====="
-echo "Server timestamp BEFORE install: $(date '+%m-%d %H:%M:%S.%3N')"
-echo "Install logcat PID: $INSTALL_LOGCAT_PID"
-
-set +e
-
-timeout 60s adb -s emulator-5554 install -g "$SETTINGS_APK" \
-    > "$INSTALL_LOG" 2>&1
-
-INSTALL_RC=$?
-
-set -e
-echo "===== adb install finished ====="
-echo "Server timestamp AFTER install: $(date '+%m-%d %H:%M:%S.%3N')"
-echo "Install exit code: $INSTALL_RC"
-
-kill "$INSTALL_LOGCAT_PID" 2>/dev/null || true
-wait "$INSTALL_LOGCAT_PID" 2>/dev/null || true
-
-echo "===== adb install output ====="
-cat "$INSTALL_LOG" || true
-echo "===== Checking Appium Settings package ====="
-adb -s emulator-5554 shell pm list packages | grep "io.appium.settings" || true
-adb -s emulator-5554 shell pm path io.appium.settings || true
-
-if [ "$INSTALL_RC" -ne 0 ]; then
-    echo "ERROR: Appium Settings APK installation failed or timed out."
-    exit "$INSTALL_RC"
-fi
-
-echo "===== Appium Settings APK Installation SUCCESS ====="
-
 # ============================================================
-# Step 7: Start Appium
+# Step 8: Start Appium
 # ============================================================
 
-echo "===== Step 7: Starting Appium ====="
+echo "===== Step 8: Starting Appium ====="
 
 rm -f /tmp/appium.log
 
@@ -353,19 +165,17 @@ appium \
     > /tmp/appium.log 2>&1 &
 
 APPIUM_PID=$!
-
 echo "Appium PID: $APPIUM_PID"
 
 # ============================================================
-# Step 8: Wait for Appium
+# Step 9: Wait for Appium
 # ============================================================
 
-echo "===== Step 8: Waiting for Appium ====="
+echo "===== Step 9: Waiting for Appium ====="
 
 appium_ready=false
 
 for i in $(seq 1 "$APPIUM_TIMEOUT"); do
-
     if ! kill -0 "$APPIUM_PID" 2>/dev/null; then
         echo "ERROR: Appium exited unexpectedly."
         cat /tmp/appium.log || true
@@ -384,15 +194,16 @@ done
 
 if [ "$appium_ready" != true ]; then
     echo "ERROR: Appium did not become ready."
-
     echo "===== Appium Log ====="
     cat /tmp/appium.log || true
-
     exit 1
 fi
 
-echo "===== Android Framework Health Check ====="
+# ============================================================
+# Step 10: Android Framework Health Check
+# ============================================================
 
+echo "===== Android Framework Health Check ====="
 echo "Package Manager:"
 adb shell service check package || true
 echo "Activity Manager:"
@@ -407,9 +218,9 @@ echo "Boot completed:"
 adb shell getprop sys.boot_completed || true
 
 # ============================================================
-# Step 9: Run Tests
+# Step 11: Run Tests
 # ============================================================
-echo "===== Step 9: Running Tests ====="
+echo "===== Step 11: Running Tests ====="
 
 mkdir -p test-reports/allure-results
 
@@ -427,11 +238,9 @@ set -e
 echo "Pytest exit code: $TEST_EXIT_CODE"
 
 # ============================================================
-# Step 10: Diagnostics
+# Step 12: Diagnostics
 # ============================================================
-echo "===== Step 10: Collecting Diagnostics ====="
-echo "===== Stopping Android Framework Watchdog ====="
-cleanup_watchdog
+echo "===== Step 12: Collecting Diagnostics ====="
 
 if [[ -n "${LOGCAT_PID:-}" ]]; then
     kill "$LOGCAT_PID" 2>/dev/null || true
@@ -468,6 +277,7 @@ echo "===== System Monitor ====="
     echo "===== Processes ====="
     ps aux --sort=-%cpu | head -20
 } > test-reports/system-monitor.log 2>&1 || true
+
 echo "===== Final Android Framework Health Check ====="
 adb shell service check package || true
 adb shell service check activity || true
