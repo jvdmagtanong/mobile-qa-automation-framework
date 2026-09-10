@@ -22,7 +22,7 @@ jobs:
   mobile-tests:
     runs-on: ubuntu-latest
     # timeout-minutes: 20
-    environment: 
+    environment:
       name: mobile-test-automation
       url: ${{ steps.deployment.outputs.page_url }}
 
@@ -80,9 +80,9 @@ jobs:
           disable-animations: false
           force-avd-creation: true
           emulator-options: >-
-            -no-window 
-            -gpu swiftshader_indirect 
-            -no-audio 
+            -no-window
+            -gpu swiftshader_indirect
+            -no-audio
             -no-boot-anim
             -no-snapshot
             -camera-back none
@@ -100,12 +100,8 @@ jobs:
             test-reports/appium.log
             test-reports/system-monitor.log
             test-reports/logcat-framework.txt
-            test-reports/settings-install.log
-            test-reports/settings-install-logcat.txt
-            test-reports/framework-watchdog.log
-            test-reports/framework-failure.log
           if-no-files-found: warn
-      
+
       - name: Install Allure
         if: always()
         run: |
@@ -119,7 +115,7 @@ jobs:
           allure generate test-reports/allure-results --clean -o test-reports/allure-report
           echo "===== Allure report generated ====="
           find test-reports/allure-report -maxdepth 2 -type f | head -30
-      
+
       - name: Setup Pages
         if: always()
         uses: actions/configure-pages@v5
