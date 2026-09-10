@@ -221,9 +221,10 @@ mkdir -p test-reports/allure-results
 
 set +e
 
-pytest tests/mobile/authentication -v --alluredir=test-reports/allure-results
-pytest tests/mobile/cart/logged_in_user -v --alluredir=test-reports/allure-results
-pytest tests/mobile/cart/logged_out_user -v --alluredir=test-reports/allure-results
+pytest tests/mobile -v --alluredir=test-reports/allure-results
+# pytest tests/mobile/authentication -v --alluredir=test-reports/allure-results
+# pytest tests/mobile/cart/logged_in_user -v --alluredir=test-reports/allure-results
+# pytest tests/mobile/cart/logged_out_user -v --alluredir=test-reports/allure-results
 
 TEST_EXIT_CODE=$?
 
