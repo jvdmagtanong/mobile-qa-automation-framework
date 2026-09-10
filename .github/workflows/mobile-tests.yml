@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     # timeout-minutes: 20
     environment:
-      name: mobile-test-automation
+      name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
