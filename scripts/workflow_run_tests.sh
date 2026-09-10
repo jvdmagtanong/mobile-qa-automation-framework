@@ -124,7 +124,7 @@ fi
 # ============================================================
 # Step 6: Capture Android Framework Logs
 # ============================================================
-echo "===== Starting Android Logcat Capture ====="
+echo "===== Step 6: Starting Android Logcat Capture ====="
 rm -f test-reports/logcat-framework.txt
 adb logcat -c || true
 adb -s emulator-5554 logcat -b all -v threadtime > test-reports/logcat-framework.txt 2>&1 &
@@ -198,7 +198,7 @@ fi
 # Step 10: Android Framework Health Check
 # ============================================================
 
-echo "===== Android Framework Health Check ====="
+echo "===== Step 10: Android Framework Health Check ====="
 echo "Package Manager:"
 adb shell service check package || true
 echo "Activity Manager:"
@@ -221,10 +221,9 @@ mkdir -p test-reports/allure-results
 
 set +e
 
-pytest \
-    tests/mobile/cart/logged_out_user \
-    -v \
-    --alluredir=test-reports/allure-results
+pytest tests/mobile/authentication -v --alluredir=test-reports/allure-results
+pytest tests/mobile/cart/logged_in_user -v --alluredir=test-reports/allure-results
+pytest tests/mobile/cart/logged_out_user -v --alluredir=test-reports/allure-results
 
 TEST_EXIT_CODE=$?
 
