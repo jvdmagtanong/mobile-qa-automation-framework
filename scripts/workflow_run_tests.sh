@@ -79,24 +79,19 @@ for i in $(seq 1 "$FRAMEWORK_TIMEOUT"); do
     SETTINGS_SERVICE="$(adb shell service check settings 2>/dev/null | tr -d '\r')"
     ACTIVITY_SERVICE="$(adb shell service check activity 2>/dev/null | tr -d '\r')"
 
-    echo "Framework readiness $i/$FRAMEWORK_TIMEOUT:"
-    echo "  $PACKAGE_SERVICE"
-    echo "  $SETTINGS_SERVICE"
-    echo "  $ACTIVITY_SERVICE"
-
     if [[ "$PACKAGE_SERVICE" == "Service package: found" ]] && \
        [[ "$SETTINGS_SERVICE" == "Service settings: found" ]] && \
        [[ "$ACTIVITY_SERVICE" == "Service activity: found" ]]; then
         FRAMEWORK_READY_COUNT=$((FRAMEWORK_READY_COUNT + 1))
-        echo "Framework services check passed ($FRAMEWORK_READY_COUNT/3)"
+        echo "Framework services ready: $FRAMEWORK_READY_COUNT/3"
 
         if [ "$FRAMEWORK_READY_COUNT" -ge 3 ]; then
-            echo "SUCCESS: Required Android framework services are ready and stable."
+            echo "SUCCESS: Android framework services are ready and stable."
             break
         fi
     else
         FRAMEWORK_READY_COUNT=0
-        echo "Waiting for Android framework services..."
+        echo "Waiting for Android framework services... ($i/${FRAMEWORK_TIMEOUT}s)"
     fi
 
     sleep 1
@@ -249,10 +244,8 @@ fi
 
 echo "===== Appium Log ====="
 cp /tmp/appium.log test-reports/appium.log || true
-
 echo "===== ADB Devices ====="
 adb devices > test-reports/adb-devices.txt || true
-
 echo "===== Android Properties ====="
 adb shell getprop > test-reports/getprop.txt || true
 echo "===== Accessibility Diagnostics ====="
