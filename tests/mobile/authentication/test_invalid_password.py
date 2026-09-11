@@ -7,8 +7,9 @@ from utils.config import USERNAME
 @allure.epic("UI Testing")
 @allure.feature("Authentication")
 @allure.story("User login")
-@allure.severity(allure.severity_level.CRITICAL)
 @pytest.mark.xfail(reason="This test is expected to fail due a known issue.")
+@pytest.mark.authentication
+@pytest.mark.regression
 def test_invalid_password(driver):
     header_page = HeaderPage(driver)
     with allure.step("Tap the menu and then select Login"):

@@ -217,14 +217,45 @@ adb shell getprop sys.boot_completed || true
 # ============================================================
 echo "===== Step 11: Running Tests ====="
 
+TEST_SUITE="${TEST_SUITE:-all}"
+
 mkdir -p test-reports/allure-results
 
 set +e
 
-pytest tests/mobile -v --alluredir=test-reports/allure-results
-# pytest tests/mobile/authentication -v --alluredir=test-reports/allure-results
-# pytest tests/mobile/cart/logged_in_user -v --alluredir=test-reports/allure-results
-# pytest tests/mobile/cart/logged_out_user -v --alluredir=test-reports/allure-results
+PYTEST_ARGS=(
+    tests/mobile
+    -v
+    --alluredir=test-reports/allure-results
+)
+
+case "$TEST_SUITE" in
+    smoke)
+        echo "Test selection: SMOKE tests"
+        PYTEST_ARGS+=(-m "smoke")
+        ;;
+
+    regression)
+        echo "Test selection: REGRESSION tests"
+        PYTEST_ARGS+=(-m "regression")
+        ;;
+
+    critical)
+        echo "Test selection: CRITICAL tests"
+        PYTEST_ARGS+=(-m "critical")
+        ;;
+
+    all)
+        echo "Test selection: ALL tests"
+        ;;
+
+    *)
+        echo "ERROR: Unknown TEST_SUITE: $TEST_SUITE"
+        exit 1
+        ;;
+esac
+
+pytest "${PYTEST_ARGS[@]}"
 
 TEST_EXIT_CODE=$?
 

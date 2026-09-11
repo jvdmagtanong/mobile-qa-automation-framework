@@ -9,7 +9,8 @@ from utils.json_file_reader import get_pytest_param
 @allure.epic("UI Testing")
 @allure.feature("Add to Cart")
 @allure.story("Logged out user can add item/s to cart")
-@allure.severity(allure.severity_level.CRITICAL)
+@pytest.mark.cart
+@pytest.mark.regression
 @pytest.mark.parametrize("product", get_pytest_param("multiple_item_qty"))
 def test_add_multiple_quantities_to_cart(driver, product):
 

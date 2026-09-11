@@ -1,4 +1,4 @@
-import allure
+import allure, pytest
 from pages.model.login_page import LoginPage
 from pages.model.header_page import HeaderPage
 from utils.config import PASSWORD
@@ -7,7 +7,8 @@ from utils.config import PASSWORD
 @allure.epic("UI Testing")
 @allure.feature("Authentication")
 @allure.story("User login")
-@allure.severity(allure.severity_level.CRITICAL)
+@pytest.mark.authentication
+@pytest.mark.regression
 def test_locked_out_user(driver):
     header_page = HeaderPage(driver)
     with allure.step("Tap the menu and then select Login"):

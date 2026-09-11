@@ -12,6 +12,9 @@ from utils.json_file_reader import get_pytest_param
 @allure.feature("Add to Cart")
 @allure.story("Logged in user can add item/s to cart")
 @allure.severity(allure.severity_level.CRITICAL)
+@pytest.mark.cart
+@pytest.mark.smoke
+@pytest.mark.regression
 @pytest.mark.parametrize("product", get_pytest_param("single_items"))
 def test_add_single_item_to_cart(driver, product):
     header_page = HeaderPage(driver)

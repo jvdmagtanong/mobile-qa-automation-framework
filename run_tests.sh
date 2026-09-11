@@ -4,6 +4,8 @@ set -e
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+SUITE="${1:-all}"
+
 ALLURE_RESULTS_DIR="$PROJECT_ROOT/test-reports/allure-results"
 ALLURE_REPORT_DIR="$PROJECT_ROOT/test-reports/allure-report"
 
@@ -31,13 +33,41 @@ echo "Mobile test environment is ready."
 
 echo ""
 echo "========================================"
-echo "Running Tests"
+echo "Test suite: $SUITE"
 echo "========================================"
 echo ""
 
 set +e
 
-pytest tests/ --alluredir="$ALLURE_RESULTS_DIR"
+PYTEST_ARGS=(
+    tests/
+    -v
+    --alluredir="$ALLURE_RESULTS_DIR"
+)
+
+case "$SUITE" in
+    all)
+        echo "Test selection: ALL tests"
+        ;;
+
+    smoke)
+        echo "Test selection: SMOKE tests"
+        PYTEST_ARGS+=(-m "smoke")
+        ;;
+
+    regression)
+        echo "Test selection: REGRESSION tests"
+        PYTEST_ARGS+=(-m "regression")
+        ;;
+
+    *)
+        echo "Test selection: CUSTOM marker expression"
+        echo "Marker expression: $SUITE"
+        PYTEST_ARGS+=(-m "$SUITE")
+        ;;
+esac
+
+pytest "${PYTEST_ARGS[@]}"
 
 TEST_EXIT_CODE=$?
 
