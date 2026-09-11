@@ -71,43 +71,19 @@ class BasePage:
         return element.is_displayed()
 
     def wait_for_element_visible(self, locator, timeout=10):
-        try:
-            return WebDriverWait(self.driver, timeout).until(
-                EC.visibility_of_element_located(locator)
-            )
-        except TimeoutException as te:
-            raise AssertionError(
-                f"Element was not visible within {timeout} seconds: {locator}"
-            ) from te
-        except WebDriverException as we:
-            raise AssertionError(
-                f"An error occurred while waiting for element to be visible: {we.msg}"
-            ) from we
+        return WebDriverWait(self.driver, timeout).until(
+            EC.visibility_of_element_located(locator), 
+            f"Element {locator} not visible after {timeout} seconds."
+        )
 
     def wait_for_element_clickable(self, locator, timeout=10):
-        try:
-            return WebDriverWait(self.driver, timeout).until(
-                EC.element_to_be_clickable(locator)
-            )
-        except TimeoutException as te:
-            raise AssertionError(
-                f"Element was not clickable within {timeout} seconds: {locator}"
-            ) from te
-        except WebDriverException as we:
-            raise AssertionError(
-                f"An error occurred while waiting for element to be clickable: {we.msg}"
-            ) from we
+        return WebDriverWait(self.driver, timeout).until(
+            EC.element_to_be_clickable(locator), 
+            f"Element {locator} not clickable after {timeout} seconds."
+        )
 
     def wait_for_element_not_visible(self, locator, timeout=10):
-        try:
-            return WebDriverWait(self.driver, timeout).until(
-                EC.invisibility_of_element_located(locator)
-            )
-        except TimeoutException as te:
-            raise AssertionError(
-                f"Element was still visible after {timeout} seconds: {locator}"
-            ) from te
-        except WebDriverException as we:
-            raise AssertionError(
-                f"An error occurred while waiting for element to be not visible: {we.msg}"
-            ) from we
+        return WebDriverWait(self.driver, timeout).until(
+            EC.invisibility_of_element_located(locator),
+            f"Element {locator} still visible after {timeout} seconds."
+        )

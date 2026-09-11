@@ -12,23 +12,26 @@ class HeaderPage(BasePage):
 
     def wait_for_app_ready(self, timeout=30):
         end_time = time.monotonic() + timeout
+        err_msg = None
 
         while time.monotonic() < end_time:
             try:
                 self.find_element(HeaderLocator.MENU_BUTTON)
                 self.wait_for_element_clickable(HeaderLocator.MENU_BUTTON, timeout=30)
                 return
-            except NoSuchElementException:
+            except NoSuchElementException as nse:
                 time.sleep(0.5)
-            except WebDriverException as e:
-                if "AccessibilityNodeInfo" in str(e):
+                err_msg = nse
+            except WebDriverException as we:
+                if "AccessibilityNodeInfo" in str(we):
                     time.sleep(0.5)
+                    err_msg = we
                 else:
                     raise
         raise AssertionError(
             f"App did not become ready within {timeout} seconds: "
             f"{HeaderLocator.MENU_BUTTON}"
-        )
+        ) from err_msg
 
     def open_menu(self):
         self.wait_for_element_visible(HeaderLocator.MENU_BUTTON)
