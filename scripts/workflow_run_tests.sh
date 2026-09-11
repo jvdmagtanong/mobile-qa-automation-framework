@@ -223,11 +223,11 @@ rm -rf test-reports/allure-results
 mkdir -p test-reports/allure-results
 
 cat > test-reports/allure-results/environment.properties <<EOF
-Test Suite=$TEST_SUITE
-Python=$(python --version 2>&1)
-Appium=$(appium --version 2>&1)
-Device=Pixel 2
-Android=API 30
+TEST_SUITE=$TEST_SUITE
+PYTHON_VERSION=$(python --version 2>&1 | awk '{print $2}')
+APPIUM_VERSION=$(appium --version 2>&1)
+DEVICE=Pixel 2
+ANDROID_VERSION=API 30
 EOF
 
 set +e
