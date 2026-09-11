@@ -31,18 +31,15 @@ def driver():
     options.uiautomator2_server_install_timeout = 180000
     options.uiautomator2_server_launch_timeout = 240000
     options.adb_exec_timeout = 240000
-    options.set_capability("appium:androidDeviceReadyTimeout", 60)
 
     # Performance and UI optimizations
     options.disable_window_animation = True
     options.auto_grant_permissions = True
     options.ignore_hidden_api_policy_error = True
     options.skip_unlock = True
-    options.no_reset = True
-    options.full_reset = False
+    options.no_reset = False
     options.ensure_webviews_have_pages = True
     options.native_web_screenshot = True
-    options.new_command_timeout = 3600
 
 
     driver = webdriver.Remote(
