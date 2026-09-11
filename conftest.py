@@ -38,9 +38,6 @@ def driver():
     options.ignore_hidden_api_policy_error = True
     options.skip_unlock = True
     options.no_reset = False
-    options.ensure_webviews_have_pages = True
-    options.native_web_screenshot = True
-
 
     driver = webdriver.Remote(
         f"http://{APPIUM_HOST}:{APPIUM_PORT}",
@@ -50,10 +47,6 @@ def driver():
     driver.update_settings(
         {
             "waitForIdleTimeout": 1000,
-            "waitForSelectorTimeout": 0,
-            "actionAcknowledgmentTimeout": 0,
-            "simpleIsVisibleCheck": False, 
-            "ignoreUnimportantViews": False, 
         }
     )
 
