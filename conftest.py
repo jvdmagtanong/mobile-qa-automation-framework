@@ -1,4 +1,4 @@
-import time, pytest, allure
+import pytest, allure
 from pathlib import Path
 from appium import webdriver
 from appium.options.android import UiAutomator2Options
@@ -51,7 +51,6 @@ def driver():
     )
 
     driver.activate_app(package_name)
-    # time.sleep(3)
 
     yield driver
 
@@ -69,7 +68,7 @@ def pytest_runtest_makereport(item, call):
     outcome = yield
     report = outcome.get_result()
 
-    if report.when == "call" and report.failed:
+    if report.when == "call" and (report.failed or getattr(report, "wasxfail", False)):
         driver = item.funcargs.get("driver")
 
         if driver:
