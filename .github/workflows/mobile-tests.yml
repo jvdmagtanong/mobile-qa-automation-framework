@@ -1,7 +1,23 @@
 name: Mobile Automation Tests
 
 on:
+  push:
+    branches: [ main ]
   workflow_dispatch:
+    inputs:
+      suite:
+        description: "Test suite to run"
+        required: true
+        default: "all"
+        type: choice
+        options:
+          - all
+          - smoke
+          - regression
+          - critical
+  pull_request:
+  schedule:
+    - cron: "0 8 * * *"
 
 permissions:
   contents: read
@@ -17,6 +33,7 @@ env:
   DEVICE_UDID: emulator-5554
   APPIUM_HOST: 127.0.0.1
   APPIUM_PORT: 4723
+  TEST_SUITE: ${{ inputs.suite || (github.event_name == 'schedule' && 'regression') || 'smoke' }}
 
 jobs:
   mobile-tests:
