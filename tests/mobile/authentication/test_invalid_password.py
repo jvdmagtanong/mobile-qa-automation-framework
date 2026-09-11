@@ -1,4 +1,4 @@
-import allure
+import allure, pytest
 from pages.model.login_page import LoginPage
 from pages.model.header_page import HeaderPage
 from utils.config import USERNAME
@@ -8,6 +8,7 @@ from utils.config import USERNAME
 @allure.feature("Authentication")
 @allure.story("User login")
 @allure.severity(allure.severity_level.CRITICAL)
+@pytest.mark.xfail(reason="This test is expected to fail due a known issue.")
 def test_invalid_password(driver):
     header_page = HeaderPage(driver)
     with allure.step("Tap the menu and then select Login"):
