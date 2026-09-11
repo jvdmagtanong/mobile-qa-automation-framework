@@ -219,7 +219,16 @@ echo "===== Step 11: Running Tests ====="
 
 TEST_SUITE="${TEST_SUITE:-all}"
 
+rm -rf test-reports/allure-results
 mkdir -p test-reports/allure-results
+
+cat > test-reports/allure-results/environment.properties <<EOF
+Test Suite=$TEST_SUITE
+Python=$(python --version 2>&1)
+Appium=$(appium --version 2>&1)
+Device=Pixel 2
+Android=API 30
+EOF
 
 set +e
 
