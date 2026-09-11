@@ -19,12 +19,13 @@ class LoginPage(BasePage):
 
     def verify_password_error_message_is_equal_to(self, expected_message):
         try:
-            assert self.get_element_text(LoginLocator.PASSWORD_ERROR_MESSAGE) == expected_message
+            actual_message = self.get_element_text(LoginLocator.PASSWORD_ERROR_MESSAGE)
+            assert actual_message == expected_message, \
+                f"Expected error message '{expected_message}', but got '{actual_message}'."
         except TimeoutException:
-            assert False
+            raise AssertionError("Password error message not found within the timeout period.")
 
     def login(self, username, password):
         self.enter_username(username)
         self.enter_password(password)
         self.tap_login()
-

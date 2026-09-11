@@ -11,18 +11,14 @@ def driver():
     app_path = project_root / APK_PATH
     package_name = "com.saucelabs.mydemoapp.android"
 
-    # 1. Standard W3C capabilities do NOT use 'appium:'
     capabilities = {
         "platformName": "Android",
         "appium:automationName": "UiAutomator2",
     }
 
-    # 2. Initialize Options class
     options = UiAutomator2Options()
     options.load_capabilities(capabilities)
 
-    # 3. Use Appium-Python-Client native setters for your vendor keys.
-    # This eliminates syntax issues and guarantees clean JSON serialization to the server.
     options.device_name = DEVICE_NAME
     options.udid = DEVICE_UDID
     options.app = str(app_path)
@@ -30,7 +26,6 @@ def driver():
     options.app_wait_activity = "*"
     options.app_wait_package = package_name
 
-    # Handle your timeout adjustments
     options.app_wait_duration = 120000
     options.android_install_timeout = 180000
     options.uiautomator2_server_install_timeout = 180000
@@ -65,7 +60,6 @@ def driver():
         }
     )
 
-    # Force launch/activate app explicitly upon session creation with noReset: True
     driver.activate_app(package_name)
     # time.sleep(3)
 

@@ -66,34 +66,45 @@ class CartPage(BasePage):
     def verify_product_is_in_cart(self, product_name, is_in_cart=True):
         try:
             if (is_in_cart):
-                assert self.is_product_in_cart(product_name)
+                assert self.is_product_in_cart(product_name), \
+                    f"Product '{product_name}' is not displayed in the Cart page."
             else:
-                assert not self.is_product_in_cart(product_name)
+                assert not self.is_product_in_cart(product_name), \
+                    f"Product '{product_name}' is displayed in the Cart page but should not be."
         except NoSuchElementException:
-            assert not is_in_cart
+            assert not is_in_cart, \
+                f"Product '{product_name}' is not displayed in the Cart page."
 
     def verify_item_qty_is_equal_to(self, product_name, expected_qty):
         actual_qty = self.get_item_quantity(product_name)
-        assert expected_qty == actual_qty
+        assert expected_qty == actual_qty, \
+            f"Expected quantity '{expected_qty}' for product '{product_name}', but got '{actual_qty}'."
 
     def verify_total_items_in_cart(self, total_count):
-        assert total_count == self.get_total_items_in_cart()
+        assert total_count == self.get_total_items_in_cart(), \
+            f"Expected total items '{total_count}', but got '{self.get_total_items_in_cart()}'."
 
     def verify_no_item_is_displayed(self, is_displayed=True):
         try:
             if (is_displayed):
-                assert self.is_element_displayed(CartLocator.NO_ITEM_TITLE)
+                assert self.is_element_displayed(CartLocator.NO_ITEM_TITLE), \
+                    f"Expected 'No items' message to be displayed, but it was not."
             else:
-                assert not self.is_element_displayed(CartLocator.NO_ITEM_TITLE)
+                assert not self.is_element_displayed(CartLocator.NO_ITEM_TITLE), \
+                    f"Expected 'No items' message to NOT be displayed, but it was."
         except TimeoutException:
-            assert not is_displayed
-
+            assert not is_displayed, \
+                f"Expected 'No items' message to NOT be displayed, but it was."
+            
     def verify_go_shopping_button_is_displayed(self, is_displayed=True):
         try:
             if (is_displayed):
-                assert self.is_element_displayed(CartLocator.GO_SHOPPING_BTN)
+                assert self.is_element_displayed(CartLocator.GO_SHOPPING_BTN), \
+                    f"Expected 'Go Shopping' button to be displayed, but it was not."
             else:
-                assert not self.is_element_displayed(CartLocator.GO_SHOPPING_BTN)
+                assert not self.is_element_displayed(CartLocator.GO_SHOPPING_BTN), \
+                    f"Expected 'Go Shopping' button to NOT be displayed, but it was."
         except TimeoutException:
-            assert not is_displayed
+            assert not is_displayed, \
+                f"Expected 'Go Shopping' button to NOT be displayed, but it was."
 

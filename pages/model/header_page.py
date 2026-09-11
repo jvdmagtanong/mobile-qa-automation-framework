@@ -30,11 +30,6 @@ class HeaderPage(BasePage):
             f"{HeaderLocator.MENU_BUTTON}"
         )
 
-    # def wait_for_app_ready(self):
-    #     # CI emulators can take longer for the Android accessibility
-    #     # hierarchy to become ready after the app launches.
-    #     self.wait_for_element_clickable(HeaderLocator.MENU_BUTTON, timeout=30)
-
     def open_menu(self):
         self.wait_for_element_visible(HeaderLocator.MENU_BUTTON)
         self.click_element(HeaderLocator.MENU_BUTTON)
@@ -67,10 +62,12 @@ class HeaderPage(BasePage):
 
     def verify_cart_icon_badge_text_equal_to(self, count):
         badge_text = self.get_element_text(HeaderLocator.CART_BADGE)
-        assert count == badge_text
+        assert count == badge_text, f"Expected cart badge count '{count}', but got '{badge_text}'."
 
     def verify_logout_menu_item_is_displayed(self, is_displayed=True):
         if is_displayed:
-            assert self.is_logout_menu_item_displayed()
+            assert self.is_logout_menu_item_displayed(), \
+                "Expected Log Out menu item to be displayed, but it was not."
         else:
-            assert not self.is_logout_menu_item_displayed()
+            assert not self.is_logout_menu_item_displayed(), \
+                "Expected Log Out menu item to NOT be displayed, but it was."
