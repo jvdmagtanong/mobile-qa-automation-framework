@@ -2,6 +2,8 @@ import pytest, allure
 from pathlib import Path
 from appium import webdriver
 from appium.options.android import UiAutomator2Options
+from models.failure_context import FailureContext
+from utils.gemini_failure_analyzer import analyze_test_failure
 from utils.config import APPIUM_HOST, APPIUM_PORT, APK_PATH, DEVICE_NAME, DEVICE_UDID
 
 
@@ -84,4 +86,21 @@ def pytest_runtest_makereport(item, call):
                 str(screenshot_path),
                 name=f"{item.name} - Failure Screenshot",
                 attachment_type=allure.attachment_type.PNG,
+            )
+
+            page_source = driver.page_source
+
+            context = FailureContext(
+                test_name=item.name,
+                stack_trace=report.longreprtext,
+                page_source=page_source,
+                device=DEVICE_NAME,
+            )
+
+            analysis = analyze_test_failure(context)
+
+            allure.attach(
+                analysis,
+                name="AI Failure Analysis",
+                attachment_type=allure.attachment_type.TEXT,
             )

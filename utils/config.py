@@ -16,8 +16,9 @@ def get_required_env(name: str) -> str:
 
 USERNAME = get_required_env("USERNAME")
 PASSWORD = get_required_env("PASSWORD")
+APK_PATH = get_required_env("APK_PATH")
+GEMINI_API_KEY = get_required_env("GEMINI_API_KEY")
 APPIUM_HOST = os.getenv("APPIUM_HOST", "127.0.0.1")
 APPIUM_PORT = os.getenv("APPIUM_PORT", "4723")
 DEVICE_NAME = os.getenv("DEVICE_NAME", "Pixel_10")
 DEVICE_UDID = os.getenv("DEVICE_UDID", "emulator-5554")
-APK_PATH = get_required_env("APK_PATH")
