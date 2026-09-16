@@ -581,9 +581,6 @@ The framework currently supports Android UI automation using Appium, pytest, All
 
 ## Planned Improvements
 
-* Add more mobile test scenarios
-* Expand the page model and locator layers as new screens are tested
-* Add additional API or data validation where appropriate
 * Continue improving AI-assisted failure analysis as more failure types are covered
 * Expand CI diagnostics and reporting as the framework grows
 
