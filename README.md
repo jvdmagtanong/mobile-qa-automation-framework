@@ -217,18 +217,21 @@ The goal is not simply to identify the exception. The analyzer uses the test sto
 <details>
 <summary>### Sample Gemini Response:</summary>
 1.  **Root Cause Summary**
+    
     The test `test_invalid_password` failed because the application did not display the expected error message element after an attempt to log in with an invalid password. The functional expectation is that the user receives an appropriate error message, specifically "Username and Password do not match." However, the application did not render any element with the resource ID `com.saucelabs.mydemoapp.android:id/passwordErrorTV` on the screen. Consequently, the test automation framework timed out while waiting for this element to become visible, leading to an `AssertionError` that the "Password error message not found within the timeout period."
 
 2.  **Failure Classification**
-    1. Application defect
 
-3.  **Evidence**
+    Application defect
+
+4.  **Evidence**
     *   **Test Description:** "Verify that a user receives an appropriate error message when attempting to log in with an invalid password." This sets the expectation for the application's behavior.
     *   **Stack Trace:** The `TimeoutException` clearly states, "Message: Element ('id', 'com.saucelabs.mydemoapp.android:id/passwordErrorTV') not visible after 10 seconds." This is immediately followed by a `NoSuchElementError` in the Appium stacktrace: "An element could not be located on the page using the given search parameters." This indicates the element was not present.
     *   **Sanitized Android UI Hierarchy:** A thorough review of the provided XML page source at the time of failure shows no element with the `resource-id="com.saucelabs.mydemoapp.android:id/passwordErrorTV"`. The expected error message element is entirely absent from the screen.
     *   **pytest.mark.xfail:** The test is marked with `@pytest.mark.xfail(reason="This test is expected to fail due a known issue.")`, which confirms that this is a recognized defect in the application's behavior.
 
-4.  **Recommended Fix**
+5.  **Recommended Fix**
+
     The primary fix is within the application code. The development team needs to ensure that when a user attempts to log in with an invalid password, an error message element with the specified `resource-id` (`com.saucelabs.mydemoapp.android:id/passwordErrorTV`) is correctly displayed on the screen.
 
     If, upon investigation, the application *does* display an error message but uses a different element or locator, then the test automation should be updated to reflect the actual implementation. However, based on the current evidence, the element is entirely missing.
@@ -248,7 +251,7 @@ The goal is not simply to identify the exception. The analyzer uses the test sto
     }
     ```
 
-5.  **Confidence Level**
+7.  **Confidence Level**
     **High.** The combination of the `NoSuchElementError` reported by Appium, the `TimeoutException` for the element, and the explicit absence of the element's resource ID in the UI hierarchy dump provides conclusive evidence that the application failed to display the expected error message. The `xfail` marker further reinforces this as a known application defect.
 </details>
 
@@ -411,6 +414,12 @@ pytest -m regression
 
 ```bash
 pytest -m authentication
+```
+
+Run emulator, start appium, and run tests using pytest:
+
+```bash
+./run_tests.sh <marker>
 ```
 
 To generate Allure results:
