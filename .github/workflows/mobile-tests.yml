@@ -29,6 +29,7 @@ env:
   APK_PATH: apps/mda-2.2.0-25.apk
   USERNAME: ${{ vars.USERNAME }}
   PASSWORD: ${{ secrets.PASSWORD }}
+  GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
   DEVICE_NAME: pixel_2
   DEVICE_UDID: emulator-5554
   APPIUM_HOST: 127.0.0.1
