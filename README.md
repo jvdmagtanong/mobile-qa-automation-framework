@@ -47,10 +47,14 @@ The framework currently includes:
 
 ## Framework Structure
 
-The project is organized into separate areas for locators, page models, tests, AI failure analysis, configuration, and test environment setup.
+The project is organized into separate areas for locators, page models, test data, tests, AI failure analysis, configuration, and test environment setup.
 
 ```text
 mobile-qa-automation-framework/
+│
+├── .github/
+│   └── workflows/
+│       └── mobile-tests.yml
 │
 ├── apps/
 │   └── # APK is downloaded when needed and is not committed to Git
@@ -60,13 +64,20 @@ mobile-qa-automation-framework/
 │
 ├── pages/
 │   ├── locator/
+│   │   ├── base_locator.py
+│   │   ├── cart_locator.py
+│   │   ├── catalog_locator.py
+│   │   ├── header_locator.py
 │   │   ├── login_locator.py
-│   │   └── menu_locator.py
+│   │   └── product_locator.py
 │   │
 │   └── model/
 │       ├── base_page.py
+│       ├── cart_page.py
+│       ├── catalog_page.py
+│       ├── header_page.py
 │       ├── login_page.py
-│       └── menu_page.py
+│       └── product_page.py
 │
 ├── scripts/
 │   ├── start_appium.sh
@@ -75,9 +86,34 @@ mobile-qa-automation-framework/
 │   └── workflow_run_tests.sh
 │
 ├── tests/
+│   ├── data/
+│   │   ├── multiple_item_qty.json
+│   │   └── single_items.json
+│   │
 │   └── mobile/
 │       ├── authentication/
-│       └── ...
+│       │   ├── test_invalid_password.py
+│       │   ├── test_locked_out_user.py
+│       │   └── test_login_successful.py
+│       │
+│       ├── cart/
+│       │   ├── logged_in_user/
+│       │   │   ├── test_add_diff_items_diff_qty_to_cart.py
+│       │   │   ├── test_add_multiple_items_to_cart.py
+│       │   │   ├── test_add_multiple_qty_to_cart.py
+│       │   │   └── test_add_single_item_to_cart.py
+│       │   │
+│       │   └── logged_out_user/
+│       │       ├── test_add_diff_items_diff_qty_to_cart.py
+│       │       ├── test_add_multiple_items_to_cart.py
+│       │       ├── test_add_multiple_qty_to_cart.py
+│       │       ├── test_add_single_item_to_cart.py
+│       │       ├── test_cart_qty_selector.py
+│       │       └── test_remove_items_in_cart.py
+│       │
+│       └── device/
+│           ├── manual_physical_device.py
+│           └── test_app_launch.py
 │
 ├── utils/
 │   ├── allure_metadata.py
@@ -85,9 +121,11 @@ mobile-qa-automation-framework/
 │   ├── gemini_failure_analyzer.py
 │   └── page_source_sanitizer.py
 │
+├── .gitignore
 ├── conftest.py
 ├── pytest.ini
 ├── requirements.txt
+├── run_tests.sh
 └── README.md
 ```
 
@@ -439,7 +477,7 @@ The Gemini API key is provided to CI through the GitHub Actions `GEMINI_API_KEY`
 
 # Test Coverage
 
-The current tests include application launch and authentication scenarios.
+The current tests include application launch, authentication, and cart scenarios.
 
 ## Successful Login
 
@@ -461,6 +499,10 @@ The locked-out user test verifies that the application displays the expected err
 The invalid password test verifies the application's response when an incorrect password is entered.
 
 This test currently demonstrates the AI failure-analysis capability by analyzing a known application behavior issue and explaining the failure using the functional test context and technical evidence.
+
+## Cart
+
+The cart tests cover cart behavior for both logged-in and logged-out users, including adding single and multiple items, changing quantities, removing items, and validating cart quantity behavior.
 
 # Failure Screenshots
 
@@ -494,6 +536,7 @@ The application provides a simple mobile shopping experience that is useful for 
 * Authentication errors
 * Navigation
 * Product interaction
+* Shopping cart behavior
 
 The application is used only as a test application for this portfolio project.
 
@@ -509,8 +552,11 @@ The framework currently supports Android UI automation using Appium, pytest, All
 * Page Object Model
 * Locator layer
 * Reusable BasePage
-* Login and menu page models
+* Login, menu/header, catalog, product, and cart page models
 * Authentication test scenarios
+* Cart test scenarios for logged-in and logged-out users
+* Device and application launch test
+* External test data files
 * Explicit waits
 * Allure reporting
 * Allure test metadata
