@@ -1,29 +1,25 @@
+from dataclasses import dataclass
 
+
+@dataclass
 class FailureContext:
-    """
-    A class to hold the context of a test failure, including the test name, error message, and any additional
-    information that may be useful for debugging.
-    """
+    """Contains the information needed to analyze an automated test failure."""
 
-    def __init__(self, test_name,
-                        story=None,
-                        scenario=None,
-                        steps=None,
-                        expected_result=None,
-                        stack_trace=None,
-                        page_source=None,
-                        framework="Appium + Python + Pytest",
-                        device=None,
-                        android_version=None,
-                        appium_version=None):
-        self.test_name = test_name
-        self.story = story
-        self.scenario = scenario
-        self.steps = steps
-        self.expected_result = expected_result
-        self.stack_trace = stack_trace
-        self.page_source = page_source
-        self.framework = framework
-        self.device = device
-        self.android_version = android_version
-        self.appium_version = appium_version
+    # Test metadata
+    test_name: str
+    epic: str | None = None
+    feature: str | None = None
+    story: str | None = None
+    description: str | None = None
+
+    # Failure evidence
+    stack_trace: str | None = None
+    page_source: str | None = None
+
+    # Test environment
+    framework: str = "Appium + Python + Pytest"
+    device: str | None = None
+    android_version: str | None = None
+    appium_version: str | None = None
+
+    

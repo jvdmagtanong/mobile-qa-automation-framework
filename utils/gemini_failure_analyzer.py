@@ -19,82 +19,91 @@ def analyze_test_failure(context: FailureContext):
     client = genai.Client(api_key=GEMINI_API_KEY)
 
     prompt = f"""
-        You are an expert SDET and mobile QA automation engineer.
+    You are an expert SDET and mobile QA automation engineer.
 
-        Analyze the following automated mobile test failure. Use the functional test
-        context and technical evidence together. Do not assume that every failure is
-        a test automation problem or an application defect. Base your conclusion on
-        the evidence provided and clearly identify uncertainty when the evidence is
-        insufficient.
+    Analyze the following automated mobile test failure. Use the functional test
+    context and technical evidence together. Do not assume that every failure is
+    a test automation problem or an application defect. Base your conclusion on
+    the evidence provided and clearly identify uncertainty when the evidence is
+    insufficient.
 
-        Test Name:
-        {context.test_name}
+    Test Name:
+    {context.test_name}
 
-        Test Story:
-        {context.story or "Not provided"}
+    Epic:
+    {context.epic or "Not provided"}
 
-        Test Scenario:
-        {context.scenario or "Not provided"}
+    Feature:
+    {context.feature or "Not provided"}
 
-        Test Steps:
-        {context.steps or "Not provided"}
+    Test Story:
+    {context.story or "Not provided"}
 
-        Expected Result:
-        {context.expected_result or "Not provided"}
+    Test Description:
+    {context.description or "Not provided"}
 
-        Framework:
-        {context.framework}
+    Framework:
+    {context.framework}
 
-        Device:
-        {context.device or "Not provided"}
+    Device:
+    {context.device or "Not provided"}
 
-        Android Version:
-        {context.android_version or "Not provided"}
+    Android Version:
+    {context.android_version or "Not provided"}
 
-        Appium Version:
-        {context.appium_version or "Not provided"}
+    Appium Version:
+    {context.appium_version or "Not provided"}
 
-        Failure / Stack Trace:
-        {context.stack_trace or "Not provided"}
+    Failure / Stack Trace:
+    {context.stack_trace or "Not provided"}
     """
 
     if context.page_source:
         prompt += f"""
 
-            Android Page Source at time of failure:
-            {context.page_source[:8000]}
-            """
+        Sanitized Android UI Hierarchy at time of failure:
+        {context.page_source[:8000]}
+        """
 
     prompt += """
-        Classify the most likely cause using one of these categories:
-        1. Application defect
-        2. Automation/test defect
-        3. Locator problem
-        4. Timing/synchronization issue
-        5. Appium/UiAutomator2 issue
-        6. Environment/device issue
-        7. Insufficient evidence
+    
+    Classify the most likely cause using one of these categories:
 
-        Provide your analysis in exactly this structure:
+    1. Application defect
+    2. Automation/test defect
+    3. Locator problem
+    4. Timing/synchronization issue
+    5. Appium/UiAutomator2 issue
+    6. Environment/device issue
+    7. Insufficient evidence
 
-        1. **Root Cause Summary**
-        A concise explanation of what most likely caused the failure.
+    An assertion failure alone does not establish an application defect.
 
-        2. **Failure Classification**
-        Choose one category from the list above and explain why.
+    Do not classify a failure as a locator problem merely because an element
+    was not found. Use the test context, page source, and failure evidence to
+    determine whether the expected element should have been present.
 
-        3. **Evidence**
-        List the specific evidence from the test scenario, expected result, stack trace,
-        page source, or environment that supports the classification.
+    Provide your analysis in exactly this structure:
 
-        4. **Recommended Fix**
-        Give a practical recommendation. If a code change is appropriate, include a
-        small relevant code example. Do not recommend changing the test merely to make
-        it pass unless the evidence indicates the test is incorrect.
+    1. **Root Cause Summary**
+    A concise explanation of what most likely caused the failure.
 
-        5. **Confidence Level**
-        State High, Medium, or Low and explain what additional evidence would increase
-        confidence if necessary.
+    2. **Failure Classification**
+    Choose one category from the list above and explain why.
+
+    3. **Evidence**
+    List the specific evidence from the test description, stack trace,
+    page source, or environment that supports the classification.
+
+    4. **Recommended Fix**
+    Give a practical recommendation. If a code change is appropriate,
+    include a small relevant code example. Do not recommend changing the
+    test merely to make it pass unless the evidence indicates the test is
+    incorrect.
+
+    5. **Confidence Level**
+    State High, Medium, or Low and explain what additional evidence would
+    increase confidence if necessary.
     """
 
     try:

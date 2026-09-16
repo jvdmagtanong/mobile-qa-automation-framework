@@ -4,6 +4,8 @@ from appium import webdriver
 from appium.options.android import UiAutomator2Options
 from models.failure_context import FailureContext
 from utils.gemini_failure_analyzer import analyze_test_failure
+from utils.allure_metadata import get_allure_metadata
+from utils.page_source_sanitizer import sanitize_page_source
 from utils.config import APPIUM_HOST, APPIUM_PORT, APK_PATH, DEVICE_NAME, DEVICE_UDID
 
 
@@ -88,12 +90,25 @@ def pytest_runtest_makereport(item, call):
                 attachment_type=allure.attachment_type.PNG,
             )
 
-            page_source = driver.page_source
+            page_source = sanitize_page_source(driver.page_source)
 
             context = FailureContext(
                 test_name=item.name,
                 stack_trace=report.longreprtext,
                 page_source=page_source,
+                device=DEVICE_NAME,
+            )
+
+            metadata = get_allure_metadata(item)
+
+            context = FailureContext(
+                test_name=item.nodeid,
+                epic=metadata["epic"],
+                feature=metadata["feature"],
+                story=metadata["story"],
+                description=metadata["description"],
+                stack_trace=report.longreprtext,
+                page_source=driver.page_source,
                 device=DEVICE_NAME,
             )
 
