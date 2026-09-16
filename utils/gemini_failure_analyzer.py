@@ -1,4 +1,3 @@
-
 from google import genai
 from models.failure_context import FailureContext
 from utils.config import GEMINI_API_KEY
@@ -87,6 +86,10 @@ def analyze_test_failure(context: FailureContext):
 
     1. **Root Cause Summary**
     A concise explanation of what most likely caused the failure.
+    Use the test story and description to explain what functional behavior was expected, 
+    then use the technical evidence to explain how the observed behavior caused the failure. 
+    When the evidence supports a specific explanation of what the application did instead, 
+    include that explanation rather than only describing the missing element.
 
     2. **Failure Classification**
     Choose one category from the list above and explain why.
