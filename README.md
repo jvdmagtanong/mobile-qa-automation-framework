@@ -252,7 +252,9 @@ The goal is not simply to identify the exception. The analyzer uses the test sto
     ```
 
 8.  **Confidence Level**
+
     **High.** The combination of the `NoSuchElementError` reported by Appium, the `TimeoutException` for the element, and the explicit absence of the element's resource ID in the UI hierarchy dump provides conclusive evidence that the application failed to display the expected error message. The `xfail` marker further reinforces this as a known application defect.
+    
 </details>
 
 # Appium Driver Setup
