@@ -19,7 +19,7 @@ class LoginPage(BasePage):
 
     def is_on_login_page(self) -> bool:
         try:
-            self.wait_for_element_clickable(LoginLocator.LOGIN_BUTTON, timeout=5)
+            self.wait_for_element_visible(LoginLocator.LOGIN_BUTTON, timeout=5)
             return True
         except TimeoutException:
             return False
