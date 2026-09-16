@@ -249,11 +249,6 @@ case "$TEST_SUITE" in
         PYTEST_ARGS+=(-m "regression")
         ;;
 
-    critical)
-        echo "Test selection: CRITICAL tests"
-        PYTEST_ARGS+=(-m "critical")
-        ;;
-
     authentication)
         echo "Test selection: AUTHENTICATION tests"
         PYTEST_ARGS+=(-m "authentication")

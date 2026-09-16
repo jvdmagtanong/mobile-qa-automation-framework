@@ -8,7 +8,7 @@ from utils.config import USERNAME
 @allure.feature("Authentication")
 @allure.story("User login")
 @allure.description(
-    "Verify that a user receives an appropriate error message " \
+    "Verify that a user receives an appropriate error message "
     "when attempting to log in with an invalid password."
 )
 @pytest.mark.xfail(reason="This test is expected to fail due a known issue.")
@@ -22,6 +22,9 @@ def test_invalid_password(driver):
     with allure.step("Enter username and password then tap Log In button"):
         login_page = LoginPage(driver)
         login_page.login(USERNAME, "INVALIDPASSWORD")
+
+    with allure.step("Verify the user is still on the Login page"):
+        login_page.verify_login_page_is_displayed()
 
     error_message = "Username and Password do not match."
     with allure.step(f"Verify error message '{error_message}' is displayed."):

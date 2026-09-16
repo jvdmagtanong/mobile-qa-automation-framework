@@ -92,13 +92,6 @@ def pytest_runtest_makereport(item, call):
 
             page_source = sanitize_page_source(driver.page_source)
 
-            context = FailureContext(
-                test_name=item.name,
-                stack_trace=report.longreprtext,
-                page_source=page_source,
-                device=DEVICE_NAME,
-            )
-
             metadata = get_allure_metadata(item)
 
             context = FailureContext(
@@ -108,7 +101,7 @@ def pytest_runtest_makereport(item, call):
                 story=metadata["story"],
                 description=metadata["description"],
                 stack_trace=report.longreprtext,
-                page_source=driver.page_source,
+                page_source=page_source,
                 device=DEVICE_NAME,
             )
 

@@ -17,13 +17,28 @@ class LoginPage(BasePage):
     def is_password_error_message_displayed(self):
         return self.is_element_displayed(LoginLocator.PASSWORD_ERROR_MESSAGE)
 
+    def is_on_login_page(self) -> bool:
+        try:
+            self.wait_for_element_clickable(LoginLocator.LOGIN_BUTTON, timeout=5)
+            return True
+        except TimeoutException:
+            return False
+
+    def verify_login_page_is_displayed(self):
+        assert (
+            self.is_on_login_page()
+        ), "Application unexpectedly navigated away from the Login page after invalid credentials."
+
     def verify_password_error_message_is_equal_to(self, expected_message):
         try:
             actual_message = self.get_element_text(LoginLocator.PASSWORD_ERROR_MESSAGE)
-            assert actual_message == expected_message, \
-                f"Expected error message '{expected_message}', but got '{actual_message}'."
+            assert (
+                actual_message == expected_message
+            ), f"Expected error message '{expected_message}', but got '{actual_message}'."
         except TimeoutException:
-            raise AssertionError("Password error message not found within the timeout period.")
+            raise AssertionError(
+                "Password error message not found within the timeout period."
+            )
 
     def login(self, username, password):
         self.enter_username(username)

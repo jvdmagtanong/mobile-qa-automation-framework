@@ -14,7 +14,6 @@ on:
           - all
           - smoke
           - regression
-          - critical
           - authentication
           - cart
   pull_request:
