@@ -216,12 +216,11 @@ The goal is not simply to identify the exception. The analyzer uses the test sto
 
 <details>
 <summary>### Sample Gemini Response:</summary>
-1.  **Root Cause Summary**
-    
+
+1.  **Root Cause Summary** 
     The test `test_invalid_password` failed because the application did not display the expected error message element after an attempt to log in with an invalid password. The functional expectation is that the user receives an appropriate error message, specifically "Username and Password do not match." However, the application did not render any element with the resource ID `com.saucelabs.mydemoapp.android:id/passwordErrorTV` on the screen. Consequently, the test automation framework timed out while waiting for this element to become visible, leading to an `AssertionError` that the "Password error message not found within the timeout period."
 
 2.  **Failure Classification**
-
     Application defect
 
 4.  **Evidence**
@@ -230,14 +229,12 @@ The goal is not simply to identify the exception. The analyzer uses the test sto
     *   **Sanitized Android UI Hierarchy:** A thorough review of the provided XML page source at the time of failure shows no element with the `resource-id="com.saucelabs.mydemoapp.android:id/passwordErrorTV"`. The expected error message element is entirely absent from the screen.
     *   **pytest.mark.xfail:** The test is marked with `@pytest.mark.xfail(reason="This test is expected to fail due a known issue.")`, which confirms that this is a recognized defect in the application's behavior.
 
-5.  **Recommended Fix**
-
+6.  **Recommended Fix**
     The primary fix is within the application code. The development team needs to ensure that when a user attempts to log in with an invalid password, an error message element with the specified `resource-id` (`com.saucelabs.mydemoapp.android:id/passwordErrorTV`) is correctly displayed on the screen.
 
     If, upon investigation, the application *does* display an error message but uses a different element or locator, then the test automation should be updated to reflect the actual implementation. However, based on the current evidence, the element is entirely missing.
 
     *Example Application Code (Conceptual fix to display error):*
-
     ```java // Assuming Android Java/Kotlin for demonstration
     // In the LoginActivity or ViewModel after invalid login attempt
     if (!usernameIsValid || !passwordIsValid) {
