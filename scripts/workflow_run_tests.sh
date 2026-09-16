@@ -254,6 +254,16 @@ case "$TEST_SUITE" in
         PYTEST_ARGS+=(-m "critical")
         ;;
 
+    authentication)
+        echo "Test selection: AUTHENTICATION tests"
+        PYTEST_ARGS+=(-m "authentication")
+        ;;
+
+    cart)
+        echo "Test selection: CART tests"
+        PYTEST_ARGS+=(-m "cart")
+        ;;
+
     all)
         echo "Test selection: ALL tests"
         ;;
