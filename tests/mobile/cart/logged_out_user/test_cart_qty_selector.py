@@ -9,6 +9,10 @@ from utils.json_file_reader import read_json_file
 @allure.epic("UI Testing")
 @allure.feature("Add to Cart")
 @allure.story("Logged out user can select quantity in Cart Page.")
+@allure.description(
+    "Verify that a logged out user can select quantity of an item in the cart page and " \
+    "the cart icon badge updates accordingly."
+)
 @pytest.mark.cart
 @pytest.mark.regression
 @pytest.mark.parametrize(

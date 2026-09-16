@@ -9,6 +9,10 @@ from utils.json_file_reader import get_pytest_param
 @allure.epic("UI Testing")
 @allure.feature("Add to Cart")
 @allure.story("Logged out user can add item/s to cart")
+@allure.description(
+    "Verify that a logged out user can add a single item to the cart and " \
+    "the cart icon badge updates accordingly."
+)
 @allure.severity(allure.severity_level.CRITICAL)
 @pytest.mark.cart
 @pytest.mark.smoke

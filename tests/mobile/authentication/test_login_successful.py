@@ -8,6 +8,9 @@ from utils.config import USERNAME, PASSWORD
 @allure.feature("Authentication")
 @allure.story("User login")
 @allure.severity(allure.severity_level.CRITICAL)
+@allure.description(
+    "Verify that a user can successfully log in with valid credentials."
+)
 @pytest.mark.authentication
 @pytest.mark.smoke
 @pytest.mark.regression

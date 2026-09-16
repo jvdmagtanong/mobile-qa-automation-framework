@@ -7,6 +7,10 @@ from utils.config import USERNAME
 @allure.epic("UI Testing")
 @allure.feature("Authentication")
 @allure.story("User login")
+@allure.description(
+    "Verify that a user receives an appropriate error message " \
+    "when attempting to log in with an invalid password."
+)
 @pytest.mark.xfail(reason="This test is expected to fail due a known issue.")
 @pytest.mark.authentication
 @pytest.mark.regression
@@ -22,4 +26,3 @@ def test_invalid_password(driver):
     error_message = "Username and Password do not match."
     with allure.step(f"Verify error message '{error_message}' is displayed."):
         login_page.verify_password_error_message_is_equal_to(error_message)
-

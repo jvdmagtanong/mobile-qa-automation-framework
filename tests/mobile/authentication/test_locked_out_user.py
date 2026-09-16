@@ -7,6 +7,10 @@ from utils.config import PASSWORD
 @allure.epic("UI Testing")
 @allure.feature("Authentication")
 @allure.story("User login")
+@allure.description(
+    "Verify that a user receives an appropriate error message " \
+    "when attempting to log in with a locked out user."
+)
 @pytest.mark.authentication
 @pytest.mark.regression
 def test_locked_out_user(driver):
