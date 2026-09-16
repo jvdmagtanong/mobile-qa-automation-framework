@@ -84,27 +84,27 @@ def analyze_test_failure(context: FailureContext):
 
     Provide your analysis in exactly this structure:
 
-    1. **Root Cause Summary**
+    **Root Cause Summary**
     A concise explanation of what most likely caused the failure.
     Use the test story and description to explain what functional behavior was expected, 
     then use the technical evidence to explain how the observed behavior caused the failure. 
     When the evidence supports a specific explanation of what the application did instead, 
     include that explanation rather than only describing the missing element.
 
-    2. **Failure Classification**
-    Choose one category from the list above and explain why.
+    **Failure Classification**
+    Choose one category from the list above and explain why. Don't include the number.
 
-    3. **Evidence**
+    **Evidence**
     List the specific evidence from the test description, stack trace,
     page source, or environment that supports the classification.
 
-    4. **Recommended Fix**
+    **Recommended Fix**
     Give a practical recommendation. If a code change is appropriate,
     include a small relevant code example. Do not recommend changing the
     test merely to make it pass unless the evidence indicates the test is
     incorrect.
 
-    5. **Confidence Level**
+    **Confidence Level**
     State High, Medium, or Low and explain what additional evidence would
     increase confidence if necessary.
     """
