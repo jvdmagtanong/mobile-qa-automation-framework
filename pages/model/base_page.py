@@ -32,7 +32,7 @@ class BasePage:
                 element = self.find_element(target_locator)
                 if element.is_displayed():
                     return
-            except TimeoutException, NoSuchElementException:
+            except (TimeoutException, NoSuchElementException):
                 self.scroll_element(container, percent=percent)
         raise TimeoutException(f"Element {target_locator} not visible after {max_scrolls} scrolls.")
 
